@@ -6,6 +6,7 @@ import (
 	"github.com/jeremaihloo/funny/langs"
 	"fmt"
 	"strings"
+	"io/ioutil"
 )
 
 type ApiRequest struct {
@@ -22,6 +23,8 @@ type ApiRequest struct {
 type ApiResponse struct {
 	Headers *http.Header
 	Body    interface{}
+
+	lines langs.Block
 }
 
 type ApiItem struct {
@@ -42,7 +45,7 @@ type ApiContext struct {
 }
 
 type Pica struct {
-	FileName  *os.File
+	FileName  string
 	Delay     int
 	Output    *os.File
 	Debug     bool
@@ -59,12 +62,8 @@ type Pica struct {
 }
 
 func NewPica(filename string, output *os.File, delay int, ifRun, ifConvert, ifDoc, ifServer bool) *Pica {
-	f, err := os.Open(filename)
-	if err != nil {
-		panic(err)
-	}
 	return &Pica{
-		FileName:  f,
+		FileName:  filename,
 		Output:    output,
 		Delay:     delay,
 		IfRun:     ifRun,
@@ -82,7 +81,7 @@ func (p *Pica) Run() error {
 	}
 	ctx, err := p.parseApiContext()
 	if p.IfRun {
-		err := p.RunApis(ctx)
+		err := p.RunApiContext(ctx)
 		if err != nil {
 			return err
 		}
@@ -94,6 +93,7 @@ func (p *Pica) parseApiContext() (ApiContext, error) {
 	ctx := ApiContext{}
 	inited := false
 	index := 0
+	asserting := false
 	for index < len(p.block)-1 {
 		line := p.block[index]
 		switch line := line.(type) {
@@ -101,7 +101,7 @@ func (p *Pica) parseApiContext() (ApiContext, error) {
 			text := strings.Trim(line.Value, " ")
 			texts := strings.Split(text, " ")
 			if len(texts) < 2 {
-
+				break
 			}
 			methods := []string{"GET", "POST", "DELETE", "PUT"}
 			flag := false
@@ -127,6 +127,14 @@ func (p *Pica) parseApiContext() (ApiContext, error) {
 				}
 				ctx.apiItems = append(ctx.apiItems, apiItem)
 			}
+		case *langs.FunctionCall:
+			if line.Name == "must" {
+				asserting = true
+			}
+			if asserting {
+				ctx.apiItems[len(ctx.apiItems)-1].Response.lines = append(ctx.apiItems[len(ctx.apiItems)-1].Response.lines, line)
+				break
+			}
 		default:
 			if inited {
 				ctx.apiItems[len(ctx.apiItems)-1].Request.lines = append(ctx.apiItems[len(ctx.apiItems)-1].Request.lines, line)
@@ -140,8 +148,7 @@ func (p *Pica) parseApiContext() (ApiContext, error) {
 }
 
 func (p *Pica) Parse() error {
-	var buffer []byte
-	_, err := p.FileName.Read(buffer)
+	buffer, err := ioutil.ReadFile(p.FileName)
 	if err != nil {
 		return fmt.Errorf("parse error %v", err.Error())
 	}
@@ -154,7 +161,7 @@ func (p *Pica) Convert() error {
 	return nil
 }
 
-func (p *Pica) RunApis(ctx ApiContext) error {
+func (p *Pica) RunApiContext(ctx ApiContext) error {
 	return nil
 }
 
