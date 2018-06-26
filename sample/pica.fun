@@ -16,7 +16,6 @@ headers = {
 // GET /api/users 获取用户列表
 headers['Authorization'] = 'slfjaslkfjlasdjfjas=='
 
-
 // POST /api/users 新建用户
 post = {
     'name' = 'test'

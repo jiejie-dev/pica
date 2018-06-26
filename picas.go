@@ -108,7 +108,7 @@ func (p *Pica) ParseApiContext() (ApiContext, error) {
 	inited := false
 	index := 0
 	asserting := false
-	for index < len(p.Block)-1 {
+	for index < len(p.Block) {
 		line := p.Block[index]
 		switch line := line.(type) {
 		case *langs.Comment:
@@ -203,6 +203,7 @@ func (p *Pica) setApiInfoFromVmIntoCtx(ctx *ApiContext) {
 	ctx.Author = p.vm.Lookup("author").(string)
 	ctx.Description = p.vm.Lookup("description").(string)
 }
+
 func (p *Pica) RunApiContext(ctx ApiContext) error {
 	for _, line := range ctx.InitLines {
 		p.vm.EvalStatement(line)
@@ -238,6 +239,7 @@ func (p *Pica) RunApiContext(ctx ApiContext) error {
 	fmt.Printf("\n\nFinished. [%d] api requests, [%s] passed", len(ctx.ApiItems), "all")
 	return nil
 }
+
 func (p *Pica) getBody(tt string) []byte {
 	val := p.vm.Lookup(tt).(map[string]langs.Value)
 	data, err := json.MarshalIndent(val, "", "  ")
@@ -269,6 +271,7 @@ func (p *Pica) resetRequestHeader() {
 }
 
 func (p *Pica) RunSingleApi(item *ApiItem) error {
+
 	fmt.Printf("Starting request [%s %s %s]\n\n", item.Request.Method, item.Request.Url, item.Request.Name)
 	p.vm.Assign("url", item.Request.Url)
 	for _, line := range item.Request.lines {
