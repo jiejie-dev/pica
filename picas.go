@@ -102,7 +102,9 @@ func (p *Pica) Run() error {
 }
 
 func (p *Pica) ParseApiContext() (ApiContext, error) {
-	ctx := ApiContext{}
+	ctx := ApiContext{
+		Headers: &http.Header{},
+	}
 	inited := false
 	index := 0
 	asserting := false
@@ -115,7 +117,7 @@ func (p *Pica) ParseApiContext() (ApiContext, error) {
 			if len(texts) < 2 {
 				break
 			}
-			methods := []string{"GET", "POST", "DELETE", "PUT"}
+			methods := []string{"GET", "POST", "DELETE", "PUT", "PATCH"}
 			flag := false
 			for _, item := range methods {
 				if strings.ToUpper(item) == strings.ToUpper(texts[0]) {
@@ -125,8 +127,9 @@ func (p *Pica) ParseApiContext() (ApiContext, error) {
 			if flag {
 				inited = true
 				req := ApiRequest{
-					Method: texts[0],
-					Url:    texts[1],
+					Method:  texts[0],
+					Url:     texts[1],
+					Headers: http.Header{},
 				}
 				if len(texts) > 2 {
 					req.Name = texts[2]
@@ -140,7 +143,7 @@ func (p *Pica) ParseApiContext() (ApiContext, error) {
 				ctx.ApiItems = append(ctx.ApiItems, apiItem)
 			}
 		case *langs.FunctionCall:
-			if line.Name == "must" {
+			if line.Name == "assert" {
 				asserting = true
 			}
 			if asserting {
@@ -194,6 +197,12 @@ func (p *Pica) Convert() error {
 	return nil
 }
 
+func (p *Pica) setApiInfoFromVmIntoCtx(ctx *ApiContext) {
+	ctx.Name = p.vm.Lookup("name").(string)
+	ctx.Version = p.vm.Lookup("version").(string)
+	ctx.Author = p.vm.Lookup("author").(string)
+	ctx.Description = p.vm.Lookup("description").(string)
+}
 func (p *Pica) RunApiContext(ctx ApiContext) error {
 	for _, line := range ctx.InitLines {
 		p.vm.EvalStatement(line)
@@ -201,11 +210,22 @@ func (p *Pica) RunApiContext(ctx ApiContext) error {
 	ctx.BaseUrl = p.vm.Lookup("baseUrl").(string)
 	p.client = NewHttpClient(ctx.BaseUrl)
 
-	ctx.Name = p.vm.Lookup("name").(string)
-	ctx.Version = p.vm.Lookup("version").(string)
-	ctx.Author = p.vm.Lookup("author").(string)
-	ctx.Description = p.vm.Lookup("description").(string)
+	p.setApiInfoFromVmIntoCtx(&ctx)
 
+	headersIf := p.vm.Lookup("headers")
+	if headersIf != nil {
+		headers := p.vm.Lookup("headers").(map[string]langs.Value)
+		for key, val := range headers {
+			switch v := val.(type) {
+			case int:
+				ctx.Headers.Set(key, string(v))
+			case string:
+				ctx.Headers.Set(key, v)
+			default:
+				panic("header's value part must be [string, int] types")
+			}
+		}
+	}
 	for index, item := range ctx.ApiItems {
 		err := p.RunSingleApi(item)
 		if err != nil {
@@ -215,24 +235,61 @@ func (p *Pica) RunApiContext(ctx ApiContext) error {
 			time.Sleep(time.Duration(p.Delay))
 		}
 	}
+	fmt.Printf("\n\nFinished. [%d] api requests, [%s] passed", len(ctx.ApiItems), "all")
 	return nil
+}
+func (p *Pica) getBody(tt string) []byte {
+	val := p.vm.Lookup(tt).(map[string]langs.Value)
+	data, err := json.MarshalIndent(val, "", "  ")
+	if err != nil {
+		return nil
+	}
+	return data
+}
+
+func (p *Pica) setRequestBody(item *ApiItem) {
+	switch item.Request.Method {
+	case "POST":
+		item.Request.Body = p.getBody("post")
+		fmt.Printf("Posting ...\n%s\n\n", item.Request.Body)
+		break
+	case "PUT":
+		item.Request.Body = p.getBody("put\n\n")
+		fmt.Printf("Putting ...\n%s", item.Request.Body)
+		break
+	case "PATCH":
+		item.Request.Body = p.getBody("patch")
+		fmt.Printf("Patching ...\n%s\n\n", item.Request.Body)
+		break
+	}
+}
+
+func (p *Pica) resetRequestHeader() {
+
 }
 
 func (p *Pica) RunSingleApi(item *ApiItem) error {
+	fmt.Printf("Starting request [%s %s %s]\n\n", item.Request.Method, item.Request.Url, item.Request.Name)
 	p.vm.Assign("url", item.Request.Url)
 	for _, line := range item.Request.lines {
 		p.vm.EvalStatement(line)
 	}
-	switch item.Request.Method {
-	case "POST":
-		item.Request.Body = []byte(p.vm.Lookup("post").(string))
-		break
-	case "PUT":
-		item.Request.Body = []byte(p.vm.Lookup("put").(string))
-		break
-	case "PATCH":
-		item.Request.Body = []byte(p.vm.Lookup("patch").(string))
-		break
+
+	p.setRequestBody(item)
+
+	headersIf := p.vm.Lookup("headers")
+	if headersIf != nil {
+		headers := p.vm.Lookup("headers").(map[string]langs.Value)
+		for key, val := range headers {
+			switch v := val.(type) {
+			case int:
+				item.Request.Headers.Set(key, string(v))
+			case string:
+				item.Request.Headers.Set(key, v)
+			default:
+				panic("header's value part must be [string, int] types")
+			}
+		}
 	}
 	res, err := p.client.Do(item.Request)
 	if err != nil {
@@ -244,10 +301,15 @@ func (p *Pica) RunSingleApi(item *ApiItem) error {
 	buf.ReadFrom(res.Body)
 	item.Response.Body = buf.Bytes()
 
-	p.vm.Assign("headers", item.Response.Headers)
+	var headers = map[string]langs.Value{}
+	for k, _ := range item.Response.Headers {
+		headers[k] = item.Response.Headers.Get(k)
+	}
+	p.vm.Assign("headers", headers)
+
 	p.vm.Assign("status", item.Response.Status)
 	p.vm.Assign("body", item.Response.Body)
-	if item.Request.Headers.Get("Content-Type") == "application/json" {
+	if strings.HasPrefix(item.Request.Headers.Get("Content-Type"), "application/json") {
 		var jResults map[string]interface{}
 		err := json.Unmarshal(item.Response.Body, jResults)
 		if err != nil {

@@ -14,14 +14,11 @@ headers = {
 // Apis format: [method] [path] [description]
 
 // GET /api/users 获取用户列表
-headers = {
-    'Authorization'= 'slfjaslkfjlasdjfjas=='
-}
-must(json.a == 2)
+headers['Authorization'] = 'slfjaslkfjlasdjfjas=='
+
 
 // POST /api/users 新建用户
 post = {
     'name' = 'test'
     'age' = 10
 }
-must(json.age == 10)

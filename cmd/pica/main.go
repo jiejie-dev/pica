@@ -25,16 +25,18 @@ var (
 )
 
 func main() {
-	defer func() {
-		if err := recover(); err != nil {
-			fmt.Printf("\nerror: %s\n", err)
-		}
-	}()
+	if !*debug {
+		//defer func() {
+		//	if err := recover(); err != nil {
+		//		fmt.Printf("\nerror: %s\n", err)
+		//	}
+		//}()
+	}
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 	if *filename == "" {
 		kingpin.Usage()
 	} else {
-		fmt.Printf("\nRunning file:  %s\n", *filename)
+		fmt.Printf("\nRunning file:  %s\n\n", *filename)
 
 		pica := pica2.NewPica(
 			*filename,
