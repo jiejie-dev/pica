@@ -31,10 +31,11 @@ func main() {
 		}
 	}()
 	kingpin.MustParse(app.Parse(os.Args[1:]))
-	fmt.Printf("\nRunning file:  %s\n", *filename)
-	if *filename == " " {
+	if *filename == "" {
 		kingpin.Usage()
 	} else {
+		fmt.Printf("\nRunning file:  %s\n", *filename)
+
 		pica := pica2.NewPica(
 			*filename,
 			*output,
