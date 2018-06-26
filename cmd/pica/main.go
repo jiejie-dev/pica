@@ -16,7 +16,7 @@ var (
 	filetype = app.Flag("filetype", "The type of api file.").Default("pica").String()
 
 	debug     = app.Flag("debug", "Debug mode.").Bool()
-	ifRun     = app.Flag("run", "Run file.").Bool()
+	ifRun     = app.Flag("run", "Run file.").Default("1").Bool()
 	ifConvert = app.Flag("convert", "Convert file.").Bool()
 	ifDoc     = app.Flag("doc", "Generate document for a api file.").Bool()
 	ifServer  = app.Flag("server", "Run as a document server").Bool()

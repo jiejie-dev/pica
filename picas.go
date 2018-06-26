@@ -7,24 +7,27 @@ import (
 	"fmt"
 	"strings"
 	"io/ioutil"
+	"time"
+	"encoding/json"
+	"bytes"
 )
 
 type ApiRequest struct {
-	Headers     *http.Header
+	Headers     http.Header
 	Method      string
 	Url         string
 	Name        string
 	Description string
-	Body        interface{}
+	Body        []byte
 
 	lines langs.Block
 }
 
 type ApiResponse struct {
-	Headers *http.Header
-	Body    interface{}
-
-	lines langs.Block
+	Headers http.Header
+	Body    []byte
+	Status  int
+	lines   langs.Block
 }
 
 type ApiItem struct {
@@ -41,7 +44,7 @@ type ApiContext struct {
 	InitVars    langs.Scope
 
 	initLines langs.Block
-	apiItems  []ApiItem
+	apiItems  []*ApiItem
 }
 
 type Pica struct {
@@ -59,6 +62,8 @@ type Pica struct {
 	block  langs.Block
 
 	initVars langs.Scope
+
+	client *HttpClient
 }
 
 func NewPica(filename string, output *os.File, delay int, ifRun, ifConvert, ifDoc, ifServer bool) *Pica {
@@ -122,7 +127,7 @@ func (p *Pica) parseApiContext() (ApiContext, error) {
 				if len(texts) > 3 {
 					req.Description = texts[3]
 				}
-				apiItem := ApiItem{
+				apiItem := &ApiItem{
 					Request: req,
 				}
 				ctx.apiItems = append(ctx.apiItems, apiItem)
@@ -162,9 +167,64 @@ func (p *Pica) Convert() error {
 }
 
 func (p *Pica) RunApiContext(ctx ApiContext) error {
+	for _, line := range ctx.initLines {
+		p.vm.EvalStatement(line)
+	}
+	ctx.BaseUrl = p.vm.Lookup("baseUrl").(string)
+	p.client = NewHttpClient(ctx.BaseUrl)
+
+	for index, item := range ctx.apiItems {
+		err := p.RunSingleApi(item)
+		if err != nil {
+			return fmt.Errorf("error when execute %d %s %s", index, item.Request.Name, err.Error())
+		}
+		if p.Delay > 0 {
+			time.Sleep(time.Duration(p.Delay))
+		}
+	}
 	return nil
 }
 
-func (p *Pica) RunSingleApi(request ApiRequest) (ApiResponse, error) {
-	return ApiResponse{}, nil
+func (p *Pica) RunSingleApi(item *ApiItem) error {
+	p.vm.Assign("url", item.Request.Url)
+	for _, line := range item.Request.lines {
+		p.vm.EvalStatement(line)
+	}
+	switch item.Request.Method {
+	case "POST":
+		item.Request.Body = []byte(p.vm.Lookup("post").(string))
+		break
+	case "PUT":
+		item.Request.Body = []byte(p.vm.Lookup("put").(string))
+		break
+	case "PATCH":
+		item.Request.Body = []byte(p.vm.Lookup("patch").(string))
+		break
+	}
+	res, err := p.client.Do(item.Request)
+	if err != nil {
+		return err
+	}
+	item.Response.Headers = res.Header
+	item.Response.Status = res.StatusCode
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(res.Body)
+	item.Response.Body = buf.Bytes()
+
+	p.vm.Assign("headers", item.Response.Headers)
+	p.vm.Assign("status", item.Response.Status)
+	p.vm.Assign("body", item.Response.Body)
+	if item.Request.Headers.Get("Content-Type") == "application/json" {
+		var jResults map[string]interface{}
+		err := json.Unmarshal(item.Response.Body, jResults)
+		if err != nil {
+			return err
+		}
+		p.vm.Assign("json", jResults)
+	}
+
+	for _, line := range item.Response.lines {
+		p.vm.EvalStatement(line)
+	}
+	return nil
 }

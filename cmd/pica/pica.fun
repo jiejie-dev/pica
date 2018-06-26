@@ -8,13 +8,13 @@ headers = {
 
 // Apis format: [method] [path] [description]
 
-// Get /api/users 获取用户列表
+// GET /api/users 获取用户列表
 headers = {
-    'Authorization': 'slfjaslkfjlasdjfjas=='
+    'Authorization'= 'slfjaslkfjlasdjfjas=='
 }
 must(json.a == 2)
 
-// Post /api/users 新建用户
+// POST /api/users 新建用户
 post = {
     'a' = 'b'
 }
