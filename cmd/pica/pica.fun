@@ -1,7 +1,7 @@
 // It's a full demo for pica.
 
 // Init vars
-baseUrl = 'http://localhost:9000'
+baseUrl = 'http://localhost:8080'
 headers = {
     'Content-Type' = 'application/json'
 }
