@@ -25,8 +25,13 @@ var (
 )
 
 func main() {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Printf("\nerror: %s\n", err)
+		}
+	}()
 	kingpin.MustParse(app.Parse(os.Args[1:]))
-	fmt.Printf("Got file:  %s\n", *filename)
+	fmt.Printf("\nRunning file:  %s\n", *filename)
 	if *filename == " " {
 		kingpin.Usage()
 	} else {
@@ -35,6 +40,7 @@ func main() {
 			*output,
 			*delay,
 			*ifRun,
+			*ifFormat,
 			*ifConvert,
 			*ifDoc,
 			*ifServer)

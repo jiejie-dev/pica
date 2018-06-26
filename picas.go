@@ -19,8 +19,7 @@ type ApiRequest struct {
 	Name        string
 	Description string
 	Body        []byte
-
-	lines langs.Block
+	lines       langs.Block
 }
 
 type ApiResponse struct {
@@ -39,12 +38,12 @@ type ApiContext struct {
 	Name        string
 	Description string
 	Author      string
+	Version     string
 	BaseUrl     string
 	Headers     *http.Header
 	InitVars    langs.Scope
-
-	initLines langs.Block
-	apiItems  []*ApiItem
+	InitLines   langs.Block
+	ApiItems    []*ApiItem
 }
 
 type Pica struct {
@@ -56,17 +55,23 @@ type Pica struct {
 	IfConvert bool
 	IfDoc     bool
 	IfServer  bool
+	IfFormat  bool
 
 	vm     *langs.Interpreter
 	parser *langs.Parser
-	block  langs.Block
-
-	initVars langs.Scope
-
+	Block  langs.Block
 	client *HttpClient
 }
 
-func NewPica(filename string, output *os.File, delay int, ifRun, ifConvert, ifDoc, ifServer bool) *Pica {
+func NewPica(
+	filename string,
+	output *os.File,
+	delay int,
+	ifRun,
+	ifFormat,
+	ifConvert,
+	ifDoc,
+	ifServer bool) *Pica {
 	return &Pica{
 		FileName:  filename,
 		Output:    output,
@@ -75,7 +80,8 @@ func NewPica(filename string, output *os.File, delay int, ifRun, ifConvert, ifDo
 		IfConvert: ifConvert,
 		IfDoc:     ifDoc,
 		IfServer:  ifServer,
-		vm:        langs.NewInterpreter(langs.Scope{}),
+		IfFormat:  ifFormat,
+		vm:        langs.NewInterpreterWithScope(langs.Scope{}),
 	}
 }
 
@@ -84,23 +90,24 @@ func (p *Pica) Run() error {
 	if err != nil {
 		return err
 	}
-	ctx, err := p.parseApiContext()
-	if p.IfRun {
-		err := p.RunApiContext(ctx)
-		if err != nil {
-			return err
-		}
+	ctx, err := p.ParseApiContext()
+	if p.IfFormat {
+		return p.Format()
+	} else if p.IfConvert {
+		return p.Convert()
+	} else if p.IfRun {
+		return p.RunApiContext(ctx)
 	}
 	return nil
 }
 
-func (p *Pica) parseApiContext() (ApiContext, error) {
+func (p *Pica) ParseApiContext() (ApiContext, error) {
 	ctx := ApiContext{}
 	inited := false
 	index := 0
 	asserting := false
-	for index < len(p.block)-1 {
-		line := p.block[index]
+	for index < len(p.Block)-1 {
+		line := p.Block[index]
 		switch line := line.(type) {
 		case *langs.Comment:
 			text := strings.Trim(line.Value, " ")
@@ -130,21 +137,21 @@ func (p *Pica) parseApiContext() (ApiContext, error) {
 				apiItem := &ApiItem{
 					Request: req,
 				}
-				ctx.apiItems = append(ctx.apiItems, apiItem)
+				ctx.ApiItems = append(ctx.ApiItems, apiItem)
 			}
 		case *langs.FunctionCall:
 			if line.Name == "must" {
 				asserting = true
 			}
 			if asserting {
-				ctx.apiItems[len(ctx.apiItems)-1].Response.lines = append(ctx.apiItems[len(ctx.apiItems)-1].Response.lines, line)
+				ctx.ApiItems[len(ctx.ApiItems)-1].Response.lines = append(ctx.ApiItems[len(ctx.ApiItems)-1].Response.lines, line)
 				break
 			}
 		default:
 			if inited {
-				ctx.apiItems[len(ctx.apiItems)-1].Request.lines = append(ctx.apiItems[len(ctx.apiItems)-1].Request.lines, line)
+				ctx.ApiItems[len(ctx.ApiItems)-1].Request.lines = append(ctx.ApiItems[len(ctx.ApiItems)-1].Request.lines, line)
 			} else {
-				ctx.initLines = append(ctx.initLines, line)
+				ctx.InitLines = append(ctx.InitLines, line)
 			}
 		}
 		index++
@@ -158,7 +165,28 @@ func (p *Pica) Parse() error {
 		return fmt.Errorf("parse error %v", err.Error())
 	}
 	p.parser = langs.NewParser(buffer)
-	p.block = p.parser.Parse()
+	p.Block = p.parser.Parse()
+	return nil
+}
+
+func (p *Pica) Format() error {
+	p.parser.Consume("")
+	flag := 0
+	for {
+		item := p.parser.ReadStatement()
+		if item == nil {
+			break
+		}
+		switch item.(type) {
+		case *langs.NewLine:
+			flag += 1
+			if flag < 1 {
+				continue
+			}
+			break
+		}
+		fmt.Printf("%s", item.String())
+	}
 	return nil
 }
 
@@ -167,13 +195,18 @@ func (p *Pica) Convert() error {
 }
 
 func (p *Pica) RunApiContext(ctx ApiContext) error {
-	for _, line := range ctx.initLines {
+	for _, line := range ctx.InitLines {
 		p.vm.EvalStatement(line)
 	}
 	ctx.BaseUrl = p.vm.Lookup("baseUrl").(string)
 	p.client = NewHttpClient(ctx.BaseUrl)
 
-	for index, item := range ctx.apiItems {
+	ctx.Name = p.vm.Lookup("name").(string)
+	ctx.Version = p.vm.Lookup("version").(string)
+	ctx.Author = p.vm.Lookup("author").(string)
+	ctx.Description = p.vm.Lookup("description").(string)
+
+	for index, item := range ctx.ApiItems {
 		err := p.RunSingleApi(item)
 		if err != nil {
 			return fmt.Errorf("error when execute %d %s %s", index, item.Request.Name, err.Error())

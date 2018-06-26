@@ -1,0 +1,5 @@
+package pica
+
+func Output()  {
+
+}

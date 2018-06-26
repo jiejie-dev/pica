@@ -1,7 +1,12 @@
 // It's a full demo for pica.
 
 // Init vars
+name = 'demo'
+description = 'This is a demo for pica.'
+version = '0.0.1'
+author = '<jeremaihloo@gmail.com> jeremaihloo'
 baseUrl = 'http://localhost:8080'
+
 headers = {
     'Content-Type' = 'application/json'
 }
@@ -16,6 +21,7 @@ must(json.a == 2)
 
 // POST /api/users 新建用户
 post = {
-    'a' = 'b'
+    'name' = 'test'
+    'age' = 10
 }
-must(json.a == 2)
+must(json.age == 10)

@@ -26,7 +26,7 @@ func (c *HttpClient) Do(req ApiRequest) (*http.Response, error) {
 	case "POST", "PATCH", "PUT":
 		body = bytes.NewReader(req.Body)
 	}
-	r, err := http.NewRequest(req.Method, c.baseUrl+"/"+req.Url, body)
+	r, err := http.NewRequest(req.Method, c.baseUrl+req.Url, body)
 	if err != nil {
 		return nil, err
 	}
