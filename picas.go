@@ -48,15 +48,16 @@ type ApiContext struct {
 }
 
 type Pica struct {
-	FileName  string
-	Delay     int
-	Output    *os.File
-	Debug     bool
-	IfRun     bool
-	IfConvert bool
-	IfDoc     bool
-	IfServer  bool
-	IfFormat  bool
+	FileName        string
+	Delay           int
+	Output          *os.File
+	Debug           bool
+	IfRun           bool
+	IfConvert       bool
+	IfDoc           bool
+	IfServer        bool
+	IfFormat        bool
+	DocTempalteFile string
 
 	vm     *langs.Interpreter
 	parser *langs.Parser
@@ -72,17 +73,20 @@ func NewPica(
 	ifFormat,
 	ifConvert,
 	ifDoc,
-	ifServer bool) *Pica {
+	ifServer bool,
+	template string) *Pica {
 	return &Pica{
-		FileName:  filename,
-		Output:    output,
-		Delay:     delay,
-		IfRun:     ifRun,
-		IfConvert: ifConvert,
-		IfDoc:     ifDoc,
-		IfServer:  ifServer,
-		IfFormat:  ifFormat,
-		vm:        langs.NewInterpreterWithScope(langs.Scope{}),
+		FileName:        filename,
+		Output:          output,
+		Delay:           delay,
+		IfRun:           ifRun,
+		IfConvert:       ifConvert,
+		IfDoc:           ifDoc,
+		IfServer:        ifServer,
+		IfFormat:        ifFormat,
+		DocTempalteFile: template,
+
+		vm: langs.NewInterpreterWithScope(langs.Scope{}),
 	}
 }
 
@@ -96,15 +100,41 @@ func (p *Pica) Run() error {
 		return p.Format()
 	} else if p.IfConvert {
 		return p.Convert()
+	} else if p.IfDoc {
+		return p.Document(ctx)
 	} else if p.IfRun {
 		return p.RunApiContext(ctx)
 	}
 	return nil
 }
 
+func (p *Pica) Document(ctx *ApiContext) error {
+	p.runInitPartOfContext(ctx)
+
+	data, err := ioutil.ReadFile(p.DocTempalteFile)
+	if err != nil {
+		data = []byte(DEFAULT_TEMPLATE)
+	}
+	generator := NewGenerator(ctx, string(data))
+	results, err := generator.Get()
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%s\n", results)
+	if _, err := p.Output.Stat(); err == nil {
+		_, err := p.Output.Write(results)
+		if err != nil {
+			return err
+		}
+		p.Output.Close()
+	}
+	return nil
+}
+
 func (p *Pica) ParseApiContext() (*ApiContext, error) {
+	headers := utils.VmMap2HttpHeaders(DefaultHeaders)
 	ctx := &ApiContext{
-		Headers: &http.Header{},
+		Headers: &headers,
 	}
 	inited := false
 	index := 0
@@ -205,7 +235,7 @@ func (p *Pica) setApiInfoFromVmIntoCtx(ctx *ApiContext) {
 	ctx.Description = p.vm.Lookup("description").(string)
 }
 
-func (p *Pica) setCtxHeader(ctx *ApiContext)  {
+func (p *Pica) setCtxHeader(ctx *ApiContext) {
 	headersIf := p.vm.Lookup("headers")
 	if headersIf != nil {
 		headers := p.vm.Lookup("headers").(map[string]langs.Value)
@@ -222,7 +252,7 @@ func (p *Pica) setCtxHeader(ctx *ApiContext)  {
 	}
 }
 
-func (p *Pica) RunApiContext(ctx *ApiContext) error {
+func (p *Pica) runInitPartOfContext(ctx *ApiContext) {
 	for _, line := range ctx.InitLines {
 		p.vm.EvalStatement(line)
 	}
@@ -231,6 +261,11 @@ func (p *Pica) RunApiContext(ctx *ApiContext) error {
 
 	p.setApiInfoFromVmIntoCtx(ctx)
 	p.setCtxHeader(ctx)
+}
+
+func (p *Pica) RunApiContext(ctx *ApiContext) error {
+
+	p.runInitPartOfContext(ctx)
 
 	for index, item := range ctx.ApiItems {
 		err := p.RunSingleApi(item)

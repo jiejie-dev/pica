@@ -1,5 +1,0 @@
-package pica
-
-func Output()  {
-
-}
