@@ -10,6 +10,7 @@ import (
 	"time"
 	"encoding/json"
 	"bytes"
+	"github.com/jeremaihloo/pica/utils"
 )
 
 type ApiRequest struct {
@@ -101,8 +102,8 @@ func (p *Pica) Run() error {
 	return nil
 }
 
-func (p *Pica) ParseApiContext() (ApiContext, error) {
-	ctx := ApiContext{
+func (p *Pica) ParseApiContext() (*ApiContext, error) {
+	ctx := &ApiContext{
 		Headers: &http.Header{},
 	}
 	inited := false
@@ -204,15 +205,7 @@ func (p *Pica) setApiInfoFromVmIntoCtx(ctx *ApiContext) {
 	ctx.Description = p.vm.Lookup("description").(string)
 }
 
-func (p *Pica) RunApiContext(ctx ApiContext) error {
-	for _, line := range ctx.InitLines {
-		p.vm.EvalStatement(line)
-	}
-	ctx.BaseUrl = p.vm.Lookup("baseUrl").(string)
-	p.client = NewHttpClient(ctx.BaseUrl)
-
-	p.setApiInfoFromVmIntoCtx(&ctx)
-
+func (p *Pica) setCtxHeader(ctx *ApiContext)  {
 	headersIf := p.vm.Lookup("headers")
 	if headersIf != nil {
 		headers := p.vm.Lookup("headers").(map[string]langs.Value)
@@ -227,6 +220,18 @@ func (p *Pica) RunApiContext(ctx ApiContext) error {
 			}
 		}
 	}
+}
+
+func (p *Pica) RunApiContext(ctx *ApiContext) error {
+	for _, line := range ctx.InitLines {
+		p.vm.EvalStatement(line)
+	}
+	ctx.BaseUrl = p.vm.Lookup("baseUrl").(string)
+	p.client = NewHttpClient(ctx.BaseUrl)
+
+	p.setApiInfoFromVmIntoCtx(ctx)
+	p.setCtxHeader(ctx)
+
 	for index, item := range ctx.ApiItems {
 		err := p.RunSingleApi(item)
 		if err != nil {
@@ -270,16 +275,7 @@ func (p *Pica) resetRequestHeader() {
 
 }
 
-func (p *Pica) RunSingleApi(item *ApiItem) error {
-
-	fmt.Printf("Starting request [%s %s %s]\n\n", item.Request.Method, item.Request.Url, item.Request.Name)
-	p.vm.Assign("url", item.Request.Url)
-	for _, line := range item.Request.lines {
-		p.vm.EvalStatement(line)
-	}
-
-	p.setRequestBody(item)
-
+func (p *Pica) setRequestHeaderFromVm(item *ApiItem) {
 	headersIf := p.vm.Lookup("headers")
 	if headersIf != nil {
 		headers := p.vm.Lookup("headers").(map[string]langs.Value)
@@ -294,9 +290,23 @@ func (p *Pica) RunSingleApi(item *ApiItem) error {
 			}
 		}
 	}
+}
+
+func (p *Pica) RunSingleApi(item *ApiItem) error {
+	fmt.Printf("Starting request [%s %s %s]\n\n", item.Request.Method, item.Request.Url, item.Request.Name)
+	p.vm.Assign("url", item.Request.Url)
+	// Eval init scope statements
+	for _, line := range item.Request.lines {
+		p.vm.EvalStatement(line)
+	}
+
+	p.setRequestBody(item)
+	p.setRequestHeaderFromVm(item)
+
+	// do request
 	res, err := p.client.Do(item.Request)
 	if err != nil {
-		return err
+		return fmt.Errorf("do http request error %s", err.Error())
 	}
 	item.Response.Headers = res.Header
 	item.Response.Status = res.StatusCode
@@ -304,23 +314,25 @@ func (p *Pica) RunSingleApi(item *ApiItem) error {
 	buf.ReadFrom(res.Body)
 	item.Response.Body = buf.Bytes()
 
-	var headers = map[string]langs.Value{}
-	for k, _ := range item.Response.Headers {
-		headers[k] = item.Response.Headers.Get(k)
-	}
+	// Assign new header from response to vm
+	headers := utils.HttpHeaders2VmMap(item.Response.Headers)
 	p.vm.Assign("headers", headers)
-
 	p.vm.Assign("status", item.Response.Status)
 	p.vm.Assign("body", item.Response.Body)
-	if strings.HasPrefix(item.Request.Headers.Get("Content-Type"), "application/json") {
+
+	contentType := item.Request.Headers.Get("Content-Type")
+	if strings.HasPrefix(contentType, "application/json") {
 		var jResults map[string]interface{}
-		err := json.Unmarshal(item.Response.Body, jResults)
+		err := json.Unmarshal(item.Response.Body, &jResults)
 		if err != nil {
-			return err
+			return fmt.Errorf("json binding %s %s", err.Error(), item.Response.Body)
 		}
 		p.vm.Assign("json", jResults)
+
+		utils.PrintJson(&jResults)
 	}
 
+	// Eval item response statement
 	for _, line := range item.Response.lines {
 		p.vm.EvalStatement(line)
 	}
