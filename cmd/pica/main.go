@@ -22,17 +22,18 @@ var (
 	ifServer    = app.Flag("server", "Run as a document server").Bool()
 	ifParse     = app.Flag("parse", "Parse api file.").Bool()
 	ifFormat    = app.Flag("format", "Format api file.").Bool()
+	ifSave      = app.Flag("save", "Save after action.").Bool()
 	docTemplate = app.Flag("template", "Document custom template.").ExistingFile()
 )
 
 func main() {
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 	if !*debug {
-		//defer func() {
-		//	if err := recover(); err != nil {
-		//		fmt.Printf("\nerror: %s\n", err)
-		//	}
-		//}()
+		defer func() {
+			if err := recover(); err != nil {
+				fmt.Printf("\nerror: %s\n", err)
+			}
+		}()
 	}
 	if *filename == "" {
 		kingpin.Usage()
@@ -42,13 +43,14 @@ func main() {
 		pica := pica2.NewPica(
 			*filename,
 			*output,
-			*delay,
-			*ifRun,
-			*ifFormat,
-			*ifConvert,
-			*ifDoc,
-			*ifServer,
-			*docTemplate)
+			*docTemplate,
+			&pica2.Config{
+				IfDoc:     *ifDoc,
+				IfRun:     *ifRun,
+				IfConvert: *ifConvert,
+				IfFormat:  *ifFormat,
+				IfServer:  *ifServer,
+			})
 		err := pica.Run()
 		if err != nil {
 			fmt.Println(err.Error())

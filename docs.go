@@ -4,6 +4,7 @@ import (
 	"text/template"
 	"fmt"
 	"bytes"
+	"encoding/json"
 )
 
 const (
@@ -56,12 +57,34 @@ Headers:
 
 {{if $item.Response.Body}}
 Body:
-{{$item.Response.Body}}
+{{json $item.Response.Body}}
 {{end}}
 
 {{end}}
 `
 )
+
+func TSafeJson(obj interface{}) string {
+	switch obj := obj.(type) {
+	case map[string]interface{}:
+		return TSafeJson(&obj)
+	case *map[string]interface{}:
+		data, err := json.MarshalIndent(obj, "", "  ")
+		if err != nil {
+			panic(err)
+		}
+		return fmt.Sprintf("\nJson:\n%s\n\n", data)
+	case []byte:
+		var newObj map[string]interface{}
+		err := json.Unmarshal(obj, &newObj)
+		if err != nil {
+			panic(err)
+		}
+		return TSafeJson(newObj)
+	default:
+		return "unknow type object to serialize"
+	}
+}
 
 type DocGenerator struct {
 	ctx      *ApiContext
@@ -73,7 +96,10 @@ func NewDefaultGenerator(ctx *ApiContext) *DocGenerator {
 }
 
 func NewGenerator(ctx *ApiContext, tStr string) *DocGenerator {
-	t := template.Must(template.New("doc").Parse(tStr))
+	fnMap := template.FuncMap{
+		"json": TSafeJson,
+	}
+	t := template.Must(template.New("doc").Funcs(fnMap).Parse(tStr))
 
 	return &DocGenerator{
 		ctx:      ctx,

@@ -27,6 +27,8 @@ type ApiResponse struct {
 	Body    []byte
 	Status  int
 	lines   langs.Block
+
+	saveLines langs.Block
 }
 
 type ApiItem struct {
@@ -48,15 +50,11 @@ type ApiContext struct {
 
 type Pica struct {
 	FileName        string
-	Delay           int
 	Output          *os.File
 	Debug           bool
-	IfRun           bool
-	IfConvert       bool
-	IfDoc           bool
-	IfServer        bool
-	IfFormat        bool
 	DocTempalteFile string
+
+	Config *Config
 
 	vm     *langs.Interpreter
 	parser *langs.Parser
@@ -64,25 +62,22 @@ type Pica struct {
 	client *HttpClient
 }
 
+type Config struct {
+	Delay     int
+	IfRun     bool
+	IfFormat  bool
+	IfConvert bool
+	IfDoc     bool
+	IfServer  bool
+	IfSave    bool
+}
+
 func NewPica(
-	filename string,
-	output *os.File,
-	delay int,
-	ifRun,
-	ifFormat,
-	ifConvert,
-	ifDoc,
-	ifServer bool,
-	template string) *Pica {
+	filename string, output *os.File, template string, config *Config) *Pica {
 	return &Pica{
 		FileName:        filename,
 		Output:          output,
-		Delay:           delay,
-		IfRun:           ifRun,
-		IfConvert:       ifConvert,
-		IfDoc:           ifDoc,
-		IfServer:        ifServer,
-		IfFormat:        ifFormat,
+		Config:          config,
 		DocTempalteFile: template,
 
 		vm: langs.NewInterpreterWithScope(langs.Scope{}),
@@ -95,17 +90,17 @@ func (p *Pica) Run() error {
 		return err
 	}
 	ctx, err := p.ParseApiContext()
-	if p.IfFormat {
+	if p.Config.IfFormat {
 		return p.Format()
-	} else if p.IfRun && p.IfDoc {
+	} else if p.Config.IfRun && p.Config.IfDoc {
 		p.RunApiContext(ctx)
 		p.Document(ctx)
 		return nil
-	} else if p.IfConvert {
+	} else if p.Config.IfConvert {
 		return p.Convert()
-	} else if p.IfDoc {
+	} else if p.Config.IfDoc {
 		return p.Document(ctx)
-	} else if p.IfRun {
+	} else if p.Config.IfRun {
 		return p.RunApiContext(ctx)
 	}
 	return nil
@@ -275,8 +270,8 @@ func (p *Pica) RunApiContext(ctx *ApiContext) error {
 		if err != nil {
 			return fmt.Errorf("error when execute %d %s %s", index, item.Request.Name, err.Error())
 		}
-		if p.Delay > 0 {
-			time.Sleep(time.Duration(p.Delay))
+		if p.Config.Delay > 0 {
+			time.Sleep(time.Duration(p.Config.Delay))
 		}
 	}
 	fmt.Printf("\n\nFinished. [%d] api requests, [%s] passed", len(ctx.ApiItems), "all")
@@ -374,5 +369,6 @@ func (p *Pica) RunSingleApi(item *ApiItem) error {
 	for _, line := range item.Response.lines {
 		p.vm.EvalStatement(line)
 	}
+
 	return nil
 }
