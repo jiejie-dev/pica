@@ -50,7 +50,7 @@ Author: {{.Author}}
 Headers:
 | --- | --- | -- |
 | name| value | description |
-{{range $i, $v := $item.Response.Body}}
+{{range $i, $v := $item.Response.Headers}}
 | {{$i}} | {{$v}} | - |
 {{end}}
 

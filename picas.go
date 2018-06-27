@@ -97,6 +97,10 @@ func (p *Pica) Run() error {
 	ctx, err := p.ParseApiContext()
 	if p.IfFormat {
 		return p.Format()
+	} else if p.IfRun && p.IfDoc {
+		p.RunApiContext(ctx)
+		p.Document(ctx)
+		return nil
 	} else if p.IfConvert {
 		return p.Convert()
 	} else if p.IfDoc {
