@@ -10,7 +10,6 @@ import (
 	"time"
 	"encoding/json"
 	"bytes"
-	"github.com/jeremaihloo/pica/utils"
 )
 
 type ApiRequest struct {
@@ -132,7 +131,7 @@ func (p *Pica) Document(ctx *ApiContext) error {
 }
 
 func (p *Pica) ParseApiContext() (*ApiContext, error) {
-	headers := utils.VmMap2HttpHeaders(DefaultHeaders)
+	headers := VmMap2HttpHeaders(DefaultHeaders)
 	ctx := &ApiContext{
 		Headers: &headers,
 	}
@@ -350,7 +349,7 @@ func (p *Pica) RunSingleApi(item *ApiItem) error {
 	item.Response.Body = buf.Bytes()
 
 	// Assign new header from response to vm
-	headers := utils.HttpHeaders2VmMap(item.Response.Headers)
+	headers := HttpHeaders2VmMap(item.Response.Headers)
 	p.vm.Assign("headers", headers)
 	p.vm.Assign("status", item.Response.Status)
 	p.vm.Assign("body", item.Response.Body)
@@ -364,7 +363,7 @@ func (p *Pica) RunSingleApi(item *ApiItem) error {
 		}
 		p.vm.Assign("json", jResults)
 
-		utils.PrintJson(&jResults)
+		PrintJson(&jResults)
 	}
 
 	// Eval item response statement

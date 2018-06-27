@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"io"
 	"fmt"
-	"github.com/jeremaihloo/pica/utils"
 )
 
 type HttpClient struct {
@@ -36,7 +35,7 @@ func (c *HttpClient) Do(req ApiRequest) (*http.Response, error) {
 
 	fmt.Printf("%s %s\n", req.Method, r.URL.String())
 	// print headers
-	utils.PrintHeaders(r.Header)
+	PrintHeaders(r.Header)
 
 	res, err := c.client.Do(r)
 	if err != nil {
@@ -44,6 +43,6 @@ func (c *HttpClient) Do(req ApiRequest) (*http.Response, error) {
 	}
 
 	fmt.Printf("\nResponse\n")
-	utils.PrintHeaders(res.Header)
+	PrintHeaders(res.Header)
 	return res, nil
 }

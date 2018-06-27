@@ -26,6 +26,7 @@ var (
 )
 
 func main() {
+	kingpin.MustParse(app.Parse(os.Args[1:]))
 	if !*debug {
 		//defer func() {
 		//	if err := recover(); err != nil {
@@ -33,7 +34,6 @@ func main() {
 		//	}
 		//}()
 	}
-	kingpin.MustParse(app.Parse(os.Args[1:]))
 	if *filename == "" {
 		kingpin.Usage()
 	} else {
