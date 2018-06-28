@@ -15,7 +15,7 @@ var (
 	runFileName       = cmdRun.Arg("filename", "Api file.").Default("pica.fun").ExistingFile()
 	runApiNames       = cmdRun.Arg("apiNames", "Api names to excute").Strings()
 	runDelay          = cmdRun.Flag("delay", "Delay after one api request.").Int()
-	runOutput         = cmdRun.Flag("output", "Output file.").OpenFile(os.O_RDWR|os.O_CREATE, os.ModePerm)
+	runOutput         = cmdRun.Flag("output", "Output file.").String()
 	runOutputTemplate = cmdRun.Flag("template", "Doc template.").Default("pica.doc.t").String()
 
 	cmdFormat      = app.Command("format", "Format api file.")

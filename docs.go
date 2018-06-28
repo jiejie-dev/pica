@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"bytes"
 	"encoding/json"
+	"strings"
 )
 
-const (
-	DEFAULT_TEMPLATE = `
+var (
+	DEFAULT_DOC_TEMPLATE = `
 # {{.Name}}
 
 > {{.Description}}
@@ -57,12 +58,17 @@ Headers:
 
 {{if $item.Response.Body}}
 Body:
+'''
 {{json $item.Response.Body}}
 {{end}}
-
+'''
 {{end}}
 `
 )
+
+func init() {
+	DEFAULT_DOC_TEMPLATE = strings.Replace(DEFAULT_DOC_TEMPLATE, "'''", "```", -1)
+}
 
 func TSafeJson(obj interface{}) string {
 	switch obj := obj.(type) {
@@ -92,7 +98,7 @@ type DocGenerator struct {
 }
 
 func NewDefaultGenerator(ctx *ApiContext) *DocGenerator {
-	return NewGenerator(ctx, DEFAULT_TEMPLATE)
+	return NewGenerator(ctx, DEFAULT_DOC_TEMPLATE)
 }
 
 func NewGenerator(ctx *ApiContext, tStr string) *DocGenerator {

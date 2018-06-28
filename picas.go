@@ -50,7 +50,7 @@ type ApiContext struct {
 
 type Pica struct {
 	FileName        string
-	Output          *os.File
+	Output          string
 	Debug           bool
 	DocTempalteFile string
 	Delay           int
@@ -63,7 +63,7 @@ type Pica struct {
 	Ctx *ApiContext
 }
 
-func NewPica(filename string, delay int, output *os.File, template string) *Pica {
+func NewPica(filename string, delay int, output, template string) *Pica {
 	return &Pica{
 		FileName:        filename,
 		Output:          output,
@@ -87,7 +87,7 @@ func (p *Pica) Run() error {
 	if err != nil {
 		return err
 	}
-	if p.Output!=nil {
+	if p.Output != "" {
 		err = p.Document()
 		if err != nil {
 			return err
@@ -101,7 +101,7 @@ func (p *Pica) Document() error {
 
 	data, err := ioutil.ReadFile(p.DocTempalteFile)
 	if err != nil {
-		data = []byte(DEFAULT_TEMPLATE)
+		data = []byte(DEFAULT_DOC_TEMPLATE)
 	}
 	generator := NewGenerator(p.Ctx, string(data))
 	results, err := generator.Get()
@@ -109,12 +109,11 @@ func (p *Pica) Document() error {
 		return err
 	}
 	fmt.Printf("%s\n", results)
-	if _, err := p.Output.Stat(); err == nil {
-		_, err := p.Output.Write(results)
+	if _, err := os.Stat(p.Output); err == nil {
+		err := ioutil.WriteFile(p.Output, results, os.ModePerm)
 		if err != nil {
 			return err
 		}
-		return p.Output.Close()
 	}
 	return nil
 }

@@ -50,7 +50,7 @@ func Init(filename, template string) error {
 	return nil
 }
 
-func Run(filename string, apiNames []string, delay int, outputFile *os.File, outputTemplate string) error {
+func Run(filename string, apiNames []string, delay int, outputFile, outputTemplate string) error {
 	pica := NewPica(filename, delay, outputFile, outputTemplate)
 	return pica.Run()
 }
