@@ -29,6 +29,10 @@ var (
 	cmdInit         = app.Command("init", "Init a new api file from template.")
 	cmdInitFileName = cmdInit.Arg("filename", "The filename to initialize.").Default("pica.fun").String()
 	cmdInitTemplate = cmdInit.Arg("template", "Init Template. Support local and remote file uri.").String()
+
+	cmdConfig = app.Command("config", "Config pica.")
+	username  = cmdConfig.Flag("username", "Username.").String()
+	email     = cmdConfig.Flag("email", "Email.").String()
 )
 
 func main() {

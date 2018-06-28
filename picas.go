@@ -83,7 +83,17 @@ func (p *Pica) Run() error {
 	if err != nil {
 		return err
 	}
-	return p.RunApiContext()
+	err = p.RunApiContext()
+	if err != nil {
+		return err
+	}
+	if p.Output!=nil {
+		err = p.Document()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (p *Pica) Document() error {
@@ -104,7 +114,7 @@ func (p *Pica) Document() error {
 		if err != nil {
 			return err
 		}
-		p.Output.Close()
+		return p.Output.Close()
 	}
 	return nil
 }

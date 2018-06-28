@@ -25,60 +25,7 @@ Author: jeremaihloo@gmail.com jeremaihloo
 
 | Referer | [http://www.baidu.com/] | - |
 
-| User-Agent | [Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36] | - |
-
-
-## API
-
-
-### GET /api/users 获取用户列表
-
-> 
-
-#### Query
-| --- | --- | -- |
-| name | type | description |
-
-
-
-### POST /api/users 新建用户
-
-> 
-
-#### Query
-| --- | --- | -- |
-| name | type | description |
-
-
-
-
-# demo
-
-> This is a demo for pica.
-
-Version: 0.0.1
-Author: jeremaihloo@gmail.com jeremaihloo
-
-## Init Scope
-
-### Headers:
-
-| --- | --- | -- |
-| name| value | description |
-
-| Accept | [* /*] | - |
-
-| Accept-Language | [en-US,en;q=0.8] | - |
-
-| Cache-Control | [max-age=0] | - |
-
-| Connection | [keep-alive] | - |
-
-| Content-Type | [application/json] | - |
-
-| Referer | [http://www.baidu.com/] | - |
-
-| User-Agent | [Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36] | - |
+| User-Agent | [Pica Api Test Client/0.0.1 https://github.com/jeremaihloo/pica] | - |
 
 
 ## API
@@ -93,6 +40,75 @@ Author: jeremaihloo@gmail.com jeremaihloo
 
 
 
+#### Response
+Headers:
+| --- | --- | -- |
+| name| value | description |
+
+| Content-Length | [293] | - |
+
+| Content-Type | [application/json; charset=utf-8] | - |
+
+| Date | [Thu, 28 Jun 2018 05:36:23 GMT] | - |
+
+
+
+Body:
+
+Json:
+{
+  "items": [
+    {
+      "age": 23,
+      "name": "jeremaihloo"
+    },
+    {
+      "age": 10,
+      "name": "test"
+    },
+    {
+      "age": 10,
+      "name": "test"
+    },
+    {
+      "age": 10,
+      "name": "test"
+    },
+    {
+      "age": 10,
+      "name": "test"
+    },
+    {
+      "age": 10,
+      "name": "test"
+    },
+    {
+      "age": 10,
+      "name": "test"
+    },
+    {
+      "age": 10,
+      "name": "test"
+    },
+    {
+      "age": 10,
+      "name": "test"
+    },
+    {
+      "age": 10,
+      "name": "test"
+    },
+    {
+      "age": 10,
+      "name": "test"
+    }
+  ]
+}
+
+
+
+
+
 ### POST /api/users 新建用户
 
 
@@ -101,35 +117,44 @@ Author: jeremaihloo@gmail.com jeremaihloo
 | name | type | description |
 
 
+#### Body
+| --- | --- | -- |
+| name | type | description |
+
+| Content-Length | [293] | - |
+
+| Content-Type | [application/json; charset=utf-8] | - |
+
+| Date | [Thu, 28 Jun 2018 05:36:23 GMT] | - |
 
 
-# demo
 
-> This is a demo for pica.
-
-Version: 0.0.1
-Author: jeremaihloo@gmail.com jeremaihloo
-
-## Init Scope
-
-### Headers:
-
+#### Response
+Headers:
 | --- | --- | -- |
 | name| value | description |
 
-| Accept | [* /*] | - |
+| Content-Length | [24] | - |
 
-| Accept-Language | [en-US,en;q=0.8] | - |
+| Content-Type | [application/json; charset=utf-8] | - |
 
-| Cache-Control | [max-age=0] | - |
+| Date | [Thu, 28 Jun 2018 05:36:23 GMT] | - |
 
-| Connection | [keep-alive] | - |
 
-| Content-Type | [application/json] | - |
 
-| Referer | [http://www.baidu.com/] | - |
+Body:
 
-| User-Agent | [Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36] | - |
+Json:
+{
+  "age": 10,
+  "name": "test"
+}
+
+
+
+
+
+ome/48.0.2564.116 Safari/537.36] | - |
 
 
 ## API
@@ -1245,6 +1270,938 @@ Body:
 Headers:
 | --- | --- | -- |
 | name| value | description |
+
+
+
+
+
+
+# demo
+
+> This is a demo for pica.
+
+Version: 0.0.1
+Author: jeremaihloo@gmail.com jeremaihloo
+
+## Init Scope
+
+### Headers:
+
+| --- | --- | -- |
+| name| value | description |
+
+| Accept | [* /*] | - |
+
+| Accept-Language | [en-US,en;q=0.8] | - |
+
+| Cache-Control | [max-age=0] | - |
+
+| Connection | [keep-alive] | - |
+
+| Content-Type | [application/json] | - |
+
+| Referer | [http://www.baidu.com/] | - |
+
+| User-Agent | [Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36] | - |
+
+
+## API
+
+
+### GET /api/users 获取用户列表
+
+
+#### Query
+| --- | --- | -- |
+| name | type | description |
+
+
+
+#### Response
+Headers:
+| --- | --- | -- |
+| name| value | description |
+
+| Connection | [keep-alive] | - |
+
+| Content-Length | [148] | - |
+
+| Content-Security-Policy | [default-src 'self'] | - |
+
+| Content-Type | [text/html; charset=utf-8] | - |
+
+| Date | [Wed, 27 Jun 2018 05:36:51 GMT] | - |
+
+| Vary | [Accept-Encoding] | - |
+
+| X-Content-Type-Options | [nosniff] | - |
+
+| X-Powered-By | [Express] | - |
+
+
+
+Body:
+[60 33 68 79 67 84 89 80 69 32 104 116 109 108 62 10 60 104 116 109 108 32 108 97 110 103 61 34 101 110 34 62 10 60 104 101 97 100 62 10 60 109 101 116 97 32 99 104 97 114 115 101 116 61 34 117 116 102 45 56 34 62 10 60 116 105 116 108 101 62 69 114 114 111 114 60 47 116 105 116 108 101 62 10 60 47 104 101 97 100 62 10 60 98 111 100 121 62 10 60 112 114 101 62 67 97 110 110 111 116 32 71 69 84 32 47 97 112 105 47 117 115 101 114 115 60 47 112 114 101 62 10 60 47 98 111 100 121 62 10 60 47 104 116 109 108 62 10]
+
+
+
+### POST /api/users 新建用户
+
+
+#### Query
+| --- | --- | -- |
+| name | type | description |
+
+
+
+#### Response
+Headers:
+| --- | --- | -- |
+| name| value | description |
+
+
+
+
+
+
+# demo
+
+> This is a demo for pica.
+
+Version: 0.0.1
+Author: jeremaihloo@gmail.com jeremaihloo
+
+## Init Scope
+
+### Headers:
+
+| --- | --- | -- |
+| name| value | description |
+
+| Accept | [* /*] | - |
+
+| Accept-Language | [en-US,en;q=0.8] | - |
+
+| Cache-Control | [max-age=0] | - |
+
+| Connection | [keep-alive] | - |
+
+| Content-Type | [application/json] | - |
+
+| Referer | [http://www.baidu.com/] | - |
+
+| User-Agent | [Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36] | - |
+
+
+## API
+
+
+### GET /api/users 获取用户列表
+
+
+#### Query
+| --- | --- | -- |
+| name | type | description |
+
+
+
+#### Response
+Headers:
+| --- | --- | -- |
+| name| value | description |
+
+| Connection | [keep-alive] | - |
+
+| Content-Length | [148] | - |
+
+| Content-Security-Policy | [default-src 'self'] | - |
+
+| Content-Type | [text/html; charset=utf-8] | - |
+
+| Date | [Wed, 27 Jun 2018 05:42:55 GMT] | - |
+
+| Vary | [Accept-Encoding] | - |
+
+| X-Content-Type-Options | [nosniff] | - |
+
+| X-Powered-By | [Express] | - |
+
+
+
+Body:
+[60 33 68 79 67 84 89 80 69 32 104 116 109 108 62 10 60 104 116 109 108 32 108 97 110 103 61 34 101 110 34 62 10 60 104 101 97 100 62 10 60 109 101 116 97 32 99 104 97 114 115 101 116 61 34 117 116 102 45 56 34 62 10 60 116 105 116 108 101 62 69 114 114 111 114 60 47 116 105 116 108 101 62 10 60 47 104 101 97 100 62 10 60 98 111 100 121 62 10 60 112 114 101 62 67 97 110 110 111 116 32 71 69 84 32 47 97 112 105 47 117 115 101 114 115 60 47 112 114 101 62 10 60 47 98 111 100 121 62 10 60 47 104 116 109 108 62 10]
+
+
+
+### POST /api/users 新建用户
+
+
+#### Query
+| --- | --- | -- |
+| name | type | description |
+
+
+
+#### Response
+Headers:
+| --- | --- | -- |
+| name| value | description |
+
+
+
+
+
+
+# demo
+
+> This is a demo for pica.
+
+Version: 0.0.1
+Author: jeremaihloo@gmail.com jeremaihloo
+
+## Init Scope
+
+### Headers:
+
+| --- | --- | -- |
+| name| value | description |
+
+| Accept | [* /*] | - |
+
+| Accept-Language | [en-US,en;q=0.8] | - |
+
+| Cache-Control | [max-age=0] | - |
+
+| Connection | [keep-alive] | - |
+
+| Content-Type | [application/json] | - |
+
+| Referer | [http://www.baidu.com/] | - |
+
+| User-Agent | [Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36] | - |
+
+
+## API
+
+
+### GET /api/users 获取用户列表
+
+
+#### Query
+| --- | --- | -- |
+| name | type | description |
+
+
+
+#### Response
+Headers:
+| --- | --- | -- |
+| name| value | description |
+
+| Content-Length | [43] | - |
+
+| Content-Type | [application/json; charset=utf-8] | - |
+
+| Date | [Wed, 27 Jun 2018 06:00:00 GMT] | - |
+
+
+
+Body:
+
+Json:
+{
+  "items": [
+    {
+      "age": 23,
+      "name": "jeremaihloo"
+    }
+  ]
+}
+
+
+
+
+
+### POST /api/users 新建用户
+
+
+#### Query
+| --- | --- | -- |
+| name | type | description |
+
+
+#### Body
+| --- | --- | -- |
+| name | type | description |
+
+| Content-Length | [43] | - |
+
+| Content-Type | [application/json; charset=utf-8] | - |
+
+| Date | [Wed, 27 Jun 2018 06:00:00 GMT] | - |
+
+
+
+#### Response
+Headers:
+| --- | --- | -- |
+| name| value | description |
+
+| Content-Length | [24] | - |
+
+| Content-Type | [application/json; charset=utf-8] | - |
+
+| Date | [Wed, 27 Jun 2018 06:00:00 GMT] | - |
+
+
+
+Body:
+
+Json:
+{
+  "age": 10,
+  "name": "test"
+}
+
+
+
+
+
+
+# demo
+
+> This is a demo for pica.
+
+Version: 0.0.1
+Author: jeremaihloo@gmail.com jeremaihloo
+
+## Init Scope
+
+### Headers:
+
+| --- | --- | -- |
+| name| value | description |
+
+| Accept | [* /*] | - |
+
+| Accept-Language | [en-US,en;q=0.8] | - |
+
+| Cache-Control | [max-age=0] | - |
+
+| Connection | [keep-alive] | - |
+
+| Content-Type | [application/json] | - |
+
+| Referer | [http://www.baidu.com/] | - |
+
+| User-Agent | [Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36] | - |
+
+
+## API
+
+
+### GET /api/users 获取用户列表
+
+
+#### Query
+| --- | --- | -- |
+| name | type | description |
+
+
+
+#### Response
+Headers:
+| --- | --- | -- |
+| name| value | description |
+
+| Content-Length | [68] | - |
+
+| Content-Type | [application/json; charset=utf-8] | - |
+
+| Date | [Wed, 27 Jun 2018 06:08:05 GMT] | - |
+
+
+
+Body:
+
+Json:
+{
+  "items": [
+    {
+      "age": 23,
+      "name": "jeremaihloo"
+    },
+    {
+      "age": 10,
+      "name": "test"
+    }
+  ]
+}
+
+
+
+
+
+### POST /api/users 新建用户
+
+
+#### Query
+| --- | --- | -- |
+| name | type | description |
+
+
+#### Body
+| --- | --- | -- |
+| name | type | description |
+
+| Content-Length | [68] | - |
+
+| Content-Type | [application/json; charset=utf-8] | - |
+
+| Date | [Wed, 27 Jun 2018 06:08:05 GMT] | - |
+
+
+
+#### Response
+Headers:
+| --- | --- | -- |
+| name| value | description |
+
+| Content-Length | [24] | - |
+
+| Content-Type | [application/json; charset=utf-8] | - |
+
+| Date | [Wed, 27 Jun 2018 06:08:05 GMT] | - |
+
+
+
+Body:
+
+Json:
+{
+  "age": 10,
+  "name": "test"
+}
+
+
+
+
+
+
+# demo
+
+> This is a demo for pica.
+
+Version: 0.0.1
+Author: jeremaihloo@gmail.com jeremaihloo
+
+## Init Scope
+
+### Headers:
+
+| --- | --- | -- |
+| name| value | description |
+
+| Accept | [* /*] | - |
+
+| Accept-Language | [en-US,en;q=0.8] | - |
+
+| Cache-Control | [max-age=0] | - |
+
+| Connection | [keep-alive] | - |
+
+| Content-Type | [application/json] | - |
+
+| Referer | [http://www.baidu.com/] | - |
+
+| User-Agent | [Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36] | - |
+
+
+## API
+
+
+### GET /api/users 获取用户列表
+
+
+#### Query
+| --- | --- | -- |
+| name | type | description |
+
+
+
+#### Response
+Headers:
+| --- | --- | -- |
+| name| value | description |
+
+| Content-Length | [93] | - |
+
+| Content-Type | [application/json; charset=utf-8] | - |
+
+| Date | [Wed, 27 Jun 2018 06:19:43 GMT] | - |
+
+
+
+Body:
+
+Json:
+{
+  "items": [
+    {
+      "age": 23,
+      "name": "jeremaihloo"
+    },
+    {
+      "age": 10,
+      "name": "test"
+    },
+    {
+      "age": 10,
+      "name": "test"
+    }
+  ]
+}
+
+
+
+
+
+### POST /api/users 新建用户
+
+
+#### Query
+| --- | --- | -- |
+| name | type | description |
+
+
+#### Body
+| --- | --- | -- |
+| name | type | description |
+
+| Content-Length | [93] | - |
+
+| Content-Type | [application/json; charset=utf-8] | - |
+
+| Date | [Wed, 27 Jun 2018 06:19:43 GMT] | - |
+
+
+
+#### Response
+Headers:
+| --- | --- | -- |
+| name| value | description |
+
+| Content-Length | [24] | - |
+
+| Content-Type | [application/json; charset=utf-8] | - |
+
+| Date | [Wed, 27 Jun 2018 06:19:43 GMT] | - |
+
+
+
+Body:
+
+Json:
+{
+  "age": 10,
+  "name": "test"
+}
+
+
+
+
+
+
+# demo
+
+> This is a demo for pica.
+
+Version: 0.0.1
+Author: jeremaihloo@gmail.com jeremaihloo
+
+## Init Scope
+
+### Headers:
+
+| --- | --- | -- |
+| name| value | description |
+
+| Accept | [* /*] | - |
+
+| Accept-Language | [en-US,en;q=0.8] | - |
+
+| Cache-Control | [max-age=0] | - |
+
+| Connection | [keep-alive] | - |
+
+| Content-Type | [application/json] | - |
+
+| Referer | [http://www.baidu.com/] | - |
+
+| User-Agent | [Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36] | - |
+
+
+## API
+
+
+### GET /api/users 获取用户列表
+
+
+#### Query
+| --- | --- | -- |
+| name | type | description |
+
+
+
+#### Response
+Headers:
+| --- | --- | -- |
+| name| value | description |
+
+| Content-Length | [118] | - |
+
+| Content-Type | [application/json; charset=utf-8] | - |
+
+| Date | [Wed, 27 Jun 2018 06:25:38 GMT] | - |
+
+
+
+Body:
+
+Json:
+{
+  "items": [
+    {
+      "age": 23,
+      "name": "jeremaihloo"
+    },
+    {
+      "age": 10,
+      "name": "test"
+    },
+    {
+      "age": 10,
+      "name": "test"
+    },
+    {
+      "age": 10,
+      "name": "test"
+    }
+  ]
+}
+
+
+
+
+
+### POST /api/users 新建用户
+
+
+#### Query
+| --- | --- | -- |
+| name | type | description |
+
+
+#### Body
+| --- | --- | -- |
+| name | type | description |
+
+| Content-Length | [118] | - |
+
+| Content-Type | [application/json; charset=utf-8] | - |
+
+| Date | [Wed, 27 Jun 2018 06:25:38 GMT] | - |
+
+
+
+#### Response
+Headers:
+| --- | --- | -- |
+| name| value | description |
+
+| Content-Length | [24] | - |
+
+| Content-Type | [application/json; charset=utf-8] | - |
+
+| Date | [Wed, 27 Jun 2018 06:25:38 GMT] | - |
+
+
+
+Body:
+
+Json:
+{
+  "age": 10,
+  "name": "test"
+}
+
+
+
+
+
+
+# demo
+
+> This is a demo for pica.
+
+Version: 0.0.1
+Author: jeremaihloo@gmail.com jeremaihloo
+
+## Init Scope
+
+### Headers:
+
+| --- | --- | -- |
+| name| value | description |
+
+| Accept | [* /*] | - |
+
+| Accept-Language | [en-US,en;q=0.8] | - |
+
+| Cache-Control | [max-age=0] | - |
+
+| Connection | [keep-alive] | - |
+
+| Content-Type | [application/json] | - |
+
+| Referer | [http://www.baidu.com/] | - |
+
+| User-Agent | [Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36] | - |
+
+
+## API
+
+
+### GET /api/users 获取用户列表
+
+
+#### Query
+| --- | --- | -- |
+| name | type | description |
+
+
+
+#### Response
+Headers:
+| --- | --- | -- |
+| name| value | description |
+
+| Content-Length | [143] | - |
+
+| Content-Type | [application/json; charset=utf-8] | - |
+
+| Date | [Wed, 27 Jun 2018 07:14:26 GMT] | - |
+
+
+
+Body:
+
+Json:
+{
+  "items": [
+    {
+      "age": 23,
+      "name": "jeremaihloo"
+    },
+    {
+      "age": 10,
+      "name": "test"
+    },
+    {
+      "age": 10,
+      "name": "test"
+    },
+    {
+      "age": 10,
+      "name": "test"
+    },
+    {
+      "age": 10,
+      "name": "test"
+    }
+  ]
+}
+
+
+
+
+
+### POST /api/users 新建用户
+
+
+#### Query
+| --- | --- | -- |
+| name | type | description |
+
+
+#### Body
+| --- | --- | -- |
+| name | type | description |
+
+| Content-Length | [143] | - |
+
+| Content-Type | [application/json; charset=utf-8] | - |
+
+| Date | [Wed, 27 Jun 2018 07:14:26 GMT] | - |
+
+
+
+#### Response
+Headers:
+| --- | --- | -- |
+| name| value | description |
+
+| Content-Length | [24] | - |
+
+| Content-Type | [application/json; charset=utf-8] | - |
+
+| Date | [Wed, 27 Jun 2018 07:14:26 GMT] | - |
+
+
+
+Body:
+
+Json:
+{
+  "age": 10,
+  "name": "test"
+}
+
+
+
+
+
+
+# demo
+
+> This is a demo for pica.
+
+Version: 0.0.1
+Author: jeremaihloo@gmail.com jeremaihloo
+
+## Init Scope
+
+### Headers:
+
+| --- | --- | -- |
+| name| value | description |
+
+| Accept | [* /*] | - |
+
+| Accept-Language | [en-US,en;q=0.8] | - |
+
+| Cache-Control | [max-age=0] | - |
+
+| Connection | [keep-alive] | - |
+
+| Content-Type | [application/json] | - |
+
+| Referer | [http://www.baidu.com/] | - |
+
+| User-Agent | [Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36] | - |
+
+
+## API
+
+
+### GET /api/users 获取用户列表
+
+
+#### Query
+| --- | --- | -- |
+| name | type | description |
+
+
+
+#### Response
+Headers:
+| --- | --- | -- |
+| name| value | description |
+
+| Content-Length | [168] | - |
+
+| Content-Type | [application/json; charset=utf-8] | - |
+
+| Date | [Wed, 27 Jun 2018 07:43:41 GMT] | - |
+
+
+
+Body:
+
+Json:
+{
+  "items": [
+    {
+      "age": 23,
+      "name": "jeremaihloo"
+    },
+    {
+      "age": 10,
+      "name": "test"
+    },
+    {
+      "age": 10,
+      "name": "test"
+    },
+    {
+      "age": 10,
+      "name": "test"
+    },
+    {
+      "age": 10,
+      "name": "test"
+    },
+    {
+      "age": 10,
+      "name": "test"
+    }
+  ]
+}
+
+
+
+
+
+### POST /api/users 新建用户
+
+
+#### Query
+| --- | --- | -- |
+| name | type | description |
+
+
+#### Body
+| --- | --- | -- |
+| name | type | description |
+
+| Content-Length | [168] | - |
+
+| Content-Type | [application/json; charset=utf-8] | - |
+
+| Date | [Wed, 27 Jun 2018 07:43:41 GMT] | - |
+
+
+
+#### Response
+Headers:
+| --- | --- | -- |
+| name| value | description |
+
+| Content-Length | [24] | - |
+
+| Content-Type | [application/json; charset=utf-8] | - |
+
+| Date | [Wed, 27 Jun 2018 07:43:41 GMT] | - |
+
+
+
+Body:
+
+Json:
+{
+  "age": 10,
+  "name": "test"
+}
 
 
 
