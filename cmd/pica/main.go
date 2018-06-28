@@ -3,31 +3,35 @@ package main
 import (
 	"github.com/alecthomas/kingpin"
 	"os"
+	"github.com/jeremaihloo/pica"
 	"fmt"
-	pica2 "github.com/jeremaihloo/pica"
 )
 
 var (
-	app      = kingpin.New("pica", "A command line for api test and doc generate")
-	filename = app.Arg("filename", "Api file.").ExistingFile()
-	apiNames = app.Arg("apiNames", "Api names to excute").Strings()
-	delay    = app.Flag("delay", "Delay after one api request.").Int()
-	output   = app.Flag("output", "Output file.").OpenFile(os.O_RDWR|os.O_CREATE|os.O_APPEND, os.ModePerm)
-	filetype = app.Flag("filetype", "The type of api file.").Default("pica").String()
+	app   = kingpin.New("pica", "A command line for api test and doc generate.")
+	debug = app.Flag("debug", "Debug mode.").Bool()
 
-	debug       = app.Flag("debug", "Debug mode.").Bool()
-	ifRun       = app.Flag("run", "Run file.").Default("1").Bool()
-	ifConvert   = app.Flag("convert", "Convert file.").Bool()
-	ifDoc       = app.Flag("doc", "Generate document for a api file.").Bool()
-	ifServer    = app.Flag("server", "Run as a document server").Bool()
-	ifParse     = app.Flag("parse", "Parse api file.").Bool()
-	ifFormat    = app.Flag("format", "Format api file.").Bool()
-	ifSave      = app.Flag("save", "Save after action.").Bool()
-	docTemplate = app.Flag("template", "Document custom template.").ExistingFile()
+	cmdRun            = app.Command("run", "Run api file.")
+	runFileName       = cmdRun.Arg("filename", "Api file.").Default("pica.fun").ExistingFile()
+	runApiNames       = cmdRun.Arg("apiNames", "Api names to excute").Strings()
+	runDelay          = cmdRun.Flag("delay", "Delay after one api request.").Int()
+	runOutput         = cmdRun.Flag("output", "Output file.").OpenFile(os.O_RDWR|os.O_CREATE, os.ModePerm)
+	runOutputTemplate = cmdRun.Flag("template", "Doc template.").Default("pica.doc.t").String()
+
+	cmdFormat      = app.Command("format", "Format api file.")
+	formatFileName = cmdFormat.Arg("filename", "Format file.").Default("pica.fun").ExistingFile()
+	formatSave     = cmdFormat.Flag("save", "Save formated file.").Default("1").Bool()
+
+	cmdServer  = app.Command("serve", "Run a document website.")
+	apiDocFile = cmdServer.Flag("file", "Api File.").Default("pica.md").String()
+	docPort    = cmdServer.Flag("port", "Port for doc.").Default("9000").Int()
+
+	cmdInit         = app.Command("init", "Init a new api file from template.")
+	cmdInitFileName = cmdInit.Arg("filename", "The filename to initialize.").Default("pica.fun").String()
+	cmdInitTemplate = cmdInit.Arg("template", "Init Template. Support local and remote file uri.").String()
 )
 
 func main() {
-	kingpin.MustParse(app.Parse(os.Args[1:]))
 	if !*debug {
 		defer func() {
 			if err := recover(); err != nil {
@@ -35,25 +39,21 @@ func main() {
 			}
 		}()
 	}
-	if *filename == "" {
+	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
+	case cmdRun.FullCommand():
+		pica.Run(*runFileName, *runApiNames, *runDelay, *runOutput, *runOutputTemplate)
+		break
+	case cmdFormat.FullCommand():
+		pica.Format(*formatFileName, *formatSave)
+		break
+	case cmdServer.FullCommand():
+		pica.Serve(*apiDocFile, *docPort)
+		break
+	case cmdInit.FullCommand():
+		pica.Init(*cmdInitFileName, *cmdInitTemplate)
+		break
+	default:
 		kingpin.Usage()
-	} else {
-		fmt.Printf("\nRunning file:  %s\n\n", *filename)
-
-		pica := pica2.NewPica(
-			*filename,
-			*output,
-			*docTemplate,
-			&pica2.Config{
-				IfDoc:     *ifDoc,
-				IfRun:     *ifRun,
-				IfConvert: *ifConvert,
-				IfFormat:  *ifFormat,
-				IfServer:  *ifServer,
-			})
-		err := pica.Run()
-		if err != nil {
-			fmt.Println(err.Error())
-		}
 	}
+
 }

@@ -53,31 +53,21 @@ type Pica struct {
 	Output          *os.File
 	Debug           bool
 	DocTempalteFile string
-
-	Config *Config
+	Delay           int
 
 	vm     *langs.Interpreter
 	parser *langs.Parser
 	Block  langs.Block
 	client *HttpClient
+
+	Ctx *ApiContext
 }
 
-type Config struct {
-	Delay     int
-	IfRun     bool
-	IfFormat  bool
-	IfConvert bool
-	IfDoc     bool
-	IfServer  bool
-	IfSave    bool
-}
-
-func NewPica(
-	filename string, output *os.File, template string, config *Config) *Pica {
+func NewPica(filename string, delay int, output *os.File, template string) *Pica {
 	return &Pica{
 		FileName:        filename,
 		Output:          output,
-		Config:          config,
+		Delay:           delay,
 		DocTempalteFile: template,
 
 		vm: langs.NewInterpreterWithScope(langs.Scope{}),
@@ -89,31 +79,21 @@ func (p *Pica) Run() error {
 	if err != nil {
 		return err
 	}
-	ctx, err := p.ParseApiContext()
-	if p.Config.IfFormat {
-		return p.Format()
-	} else if p.Config.IfRun && p.Config.IfDoc {
-		p.RunApiContext(ctx)
-		p.Document(ctx)
-		return nil
-	} else if p.Config.IfConvert {
-		return p.Convert()
-	} else if p.Config.IfDoc {
-		return p.Document(ctx)
-	} else if p.Config.IfRun {
-		return p.RunApiContext(ctx)
+	err = p.ParseApiContext()
+	if err != nil {
+		return err
 	}
-	return nil
+	return p.RunApiContext()
 }
 
-func (p *Pica) Document(ctx *ApiContext) error {
-	p.runInitPartOfContext(ctx)
+func (p *Pica) Document() error {
+	p.runInitPartOfContext(p.Ctx)
 
 	data, err := ioutil.ReadFile(p.DocTempalteFile)
 	if err != nil {
 		data = []byte(DEFAULT_TEMPLATE)
 	}
-	generator := NewGenerator(ctx, string(data))
+	generator := NewGenerator(p.Ctx, string(data))
 	results, err := generator.Get()
 	if err != nil {
 		return err
@@ -129,7 +109,7 @@ func (p *Pica) Document(ctx *ApiContext) error {
 	return nil
 }
 
-func (p *Pica) ParseApiContext() (*ApiContext, error) {
+func (p *Pica) ParseApiContext() error {
 	headers := VmMap2HttpHeaders(DefaultHeaders)
 	ctx := &ApiContext{
 		Headers: &headers,
@@ -188,7 +168,8 @@ func (p *Pica) ParseApiContext() (*ApiContext, error) {
 		}
 		index++
 	}
-	return ctx, nil
+	p.Ctx = ctx
+	return nil
 }
 
 func (p *Pica) Parse() error {
@@ -198,27 +179,6 @@ func (p *Pica) Parse() error {
 	}
 	p.parser = langs.NewParser(buffer)
 	p.Block = p.parser.Parse()
-	return nil
-}
-
-func (p *Pica) Format() error {
-	p.parser.Consume("")
-	flag := 0
-	for {
-		item := p.parser.ReadStatement()
-		if item == nil {
-			break
-		}
-		switch item.(type) {
-		case *langs.NewLine:
-			flag += 1
-			if flag < 1 {
-				continue
-			}
-			break
-		}
-		fmt.Printf("%s", item.String())
-	}
 	return nil
 }
 
@@ -261,20 +221,20 @@ func (p *Pica) runInitPartOfContext(ctx *ApiContext) {
 	p.setCtxHeader(ctx)
 }
 
-func (p *Pica) RunApiContext(ctx *ApiContext) error {
+func (p *Pica) RunApiContext() error {
 
-	p.runInitPartOfContext(ctx)
+	p.runInitPartOfContext(p.Ctx)
 
-	for index, item := range ctx.ApiItems {
+	for index, item := range p.Ctx.ApiItems {
 		err := p.RunSingleApi(item)
 		if err != nil {
 			return fmt.Errorf("error when execute %d %s %s", index, item.Request.Name, err.Error())
 		}
-		if p.Config.Delay > 0 {
-			time.Sleep(time.Duration(p.Config.Delay))
+		if p.Delay > 0 {
+			time.Sleep(time.Duration(p.Delay))
 		}
 	}
-	fmt.Printf("\n\nFinished. [%d] api requests, [%s] passed", len(ctx.ApiItems), "all")
+	fmt.Printf("\n\nFinished. [%d] api requests, [%s] passed", len(p.Ctx.ApiItems), "all")
 	return nil
 }
 
