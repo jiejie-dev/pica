@@ -1,23 +1,24 @@
 package pica
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
-	"fmt"
-	"github.com/jeremaihloo/funny/langs"
 	"strings"
-	"gopkg.in/russross/blackfriday.v2"
+
 	"github.com/gin-gonic/gin"
+	"github.com/jeremaihloo/funny/langs"
+	"gopkg.in/russross/blackfriday.v2"
 )
 
 const (
 	DEFAULT_API_FILE_TEMPLATE = `
-name:{{.Name}}
-description:{{.Description}}
-author:{{.Author}}
-version:{{.Version}}
+name = '{{.Name}}'
+description = '{{.Description}}'
+author = '{{.Author}}'
+version = '{{.Version}}'
 
-baseUrl:{{.BaseUrl}}
+baseUrl = '{{.BaseUrl}}'
 
 headers = {
     'Content-Type' = 'application/json'

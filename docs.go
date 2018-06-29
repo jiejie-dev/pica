@@ -1,15 +1,25 @@
 package pica
 
 import (
-	"text/template"
-	"fmt"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"strings"
+	"text/template"
+)
+
+const (
+	DefaultCopyright = `
+// =========================================== //
+// -------------- Pica Api File -------------- //
+// ----https://github.com/jeremaihloo/pica---- //
+// =========================================== //
+`
 )
 
 var (
 	DEFAULT_DOC_TEMPLATE = `
+
 # {{.Name}}
 
 > {{.Description}}
@@ -49,6 +59,7 @@ Author: {{.Author}}
 {{end}}
 
 #### Response
+StatusCode: {{$item.Response.Status}}
 Headers:
 | --- | --- | -- |
 | name| value | description |
