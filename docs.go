@@ -59,7 +59,6 @@ Author: {{.Author}}
 {{end}}
 
 #### Response
-StatusCode: {{$item.Response.Status}}
 Headers:
 | --- | --- | -- |
 | name| value | description |

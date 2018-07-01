@@ -1,10 +1,12 @@
 package pica
 
 import (
-	"net/http"
 	"bytes"
-	"io"
 	"fmt"
+	"io"
+	"net/http"
+
+	"github.com/fatih/color"
 )
 
 type HttpClient struct {
@@ -15,9 +17,7 @@ type HttpClient struct {
 func NewHttpClient(baseUrl string) *HttpClient {
 	return &HttpClient{
 		baseUrl: baseUrl,
-		client: &http.Client{
-
-		},
+		client:  &http.Client{},
 	}
 }
 
@@ -33,7 +33,7 @@ func (c *HttpClient) Do(req ApiRequest) (*http.Response, error) {
 	}
 	r.Header = req.Headers
 
-	fmt.Printf("%s %s\n", req.Method, r.URL.String())
+	// fmt.Printf("%s %s\n", req.Method, r.URL.String())
 	// print headers
 	PrintHeaders(r.Header)
 
@@ -43,6 +43,11 @@ func (c *HttpClient) Do(req ApiRequest) (*http.Response, error) {
 	}
 
 	fmt.Printf("\nResponse\n")
+	if res.StatusCode == 200 {
+		color.Green("Status: %d\n", res.StatusCode)
+	} else {
+		color.Red("Status: %d\n", res.StatusCode)
+	}
 	PrintHeaders(res.Header)
 	return res, nil
 }
