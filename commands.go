@@ -56,17 +56,19 @@ func Run(filename string, apiNames []string, delay int, outputFile, outputTempla
 	return pica.Run()
 }
 
-func Format(filename string, save bool) error {
+func Format(filename string, save, print bool) (string, error) {
 	fw := strings.Builder{}
 	output := func(text string) {
-		fmt.Printf("%s\n", text)
+		if print {
+			fmt.Printf("%s", text)
+		}
 		if save {
 			fw.WriteString(text)
 		}
 	}
 	buffer, err := ioutil.ReadFile(filename)
 	if err != nil {
-		return fmt.Errorf("parse error %v", err.Error())
+		return "", fmt.Errorf("parse error %v", err.Error())
 	}
 	parser := langs.NewParser(buffer)
 	parser.Consume("")
@@ -89,7 +91,7 @@ func Format(filename string, save bool) error {
 	if save {
 		ioutil.WriteFile(filename, []byte(fw.String()), os.ModePerm)
 	}
-	return nil
+	return fw.String(), nil
 }
 
 func Serve(filename string, port int) error {

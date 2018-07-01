@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/alecthomas/kingpin"
-	"os"
-	"github.com/jeremaihloo/pica"
 	"fmt"
+	"os"
+
+	"github.com/alecthomas/kingpin"
+	"github.com/jeremaihloo/pica"
 )
 
 var (
@@ -21,6 +22,7 @@ var (
 	cmdFormat      = app.Command("format", "Format api file.")
 	formatFileName = cmdFormat.Arg("filename", "Format file.").Default("pica.fun").ExistingFile()
 	formatSave     = cmdFormat.Flag("save", "Save formated file.").Default("1").Bool()
+	formatPrint    = cmdFormat.Flag("print", "Print to stdout").Default("1").Bool()
 
 	cmdServer  = app.Command("serve", "Run a document website.")
 	apiDocFile = cmdServer.Flag("file", "Api File.").Default("pica.md").String()
@@ -48,7 +50,7 @@ func main() {
 		pica.Run(*runFileName, *runApiNames, *runDelay, *runOutput, *runOutputTemplate)
 		break
 	case cmdFormat.FullCommand():
-		pica.Format(*formatFileName, *formatSave)
+		pica.Format(*formatFileName, *formatSave, *formatPrint)
 		break
 	case cmdServer.FullCommand():
 		pica.Serve(*apiDocFile, *docPort)
