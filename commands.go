@@ -6,8 +6,13 @@ import (
 	"os"
 	"strings"
 
+	"bytes"
+	"path/filepath"
+	"text/template"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jeremaihloo/funny/langs"
+	survey "gopkg.in/AlecAivazis/survey.v1"
 	"gopkg.in/russross/blackfriday.v2"
 )
 
@@ -39,12 +44,70 @@ post = {
 `
 )
 
-func Init(filename, template string) error {
-	data, err := ioutil.ReadFile(template)
+type InitInfo struct {
+	Name        string
+	Description string
+	Author      string
+	Version     string
+	BaseUrl     string
+}
+
+func Init(filename, templateName string) error {
+	data, err := ioutil.ReadFile(templateName)
 	if err != nil {
 		data = []byte(DEFAULT_API_FILE_TEMPLATE)
 	}
-	err = ioutil.WriteFile(filename, data, os.ModePerm)
+	info := InitInfo{}
+	// the questions to ask
+	dir, _ := os.Getwd()
+	l := filepath.SplitList(dir)
+	dir = l[len(l)-1]
+	var qs = []*survey.Question{
+		{
+			Name: "Name",
+			Prompt: &survey.Input{
+				Message: "What is your api file name?",
+				Default: filepath.Base(dir),
+			},
+			Validate:  survey.Required,
+			Transform: survey.Title,
+		},
+		{
+			Name: "Description",
+			Prompt: &survey.Input{
+				Message: "What is then description of your apis ?",
+			},
+		},
+		{
+			Name: "Author",
+			Prompt: &survey.Input{
+				Message: "Who are you ?",
+			},
+		},
+		{
+			Name: "Version",
+			Prompt: &survey.Input{
+				Message: "What version to start ?",
+			},
+		},
+		{
+			Name: "BaseUrl",
+			Prompt: &survey.Input{
+				Message: "What is the baseUrl of your apis ?",
+			},
+		},
+	}
+	err = survey.Ask(qs, &info)
+	if err != nil {
+		panic(err)
+	}
+	t := template.Must(template.New("api").Parse(string(data)))
+	buffer := new(bytes.Buffer)
+	err = t.Execute(buffer, &info)
+	if err != nil {
+		panic(err)
+	}
+	err = ioutil.WriteFile(filename, buffer.Bytes(), os.ModePerm)
 	if err != nil {
 		return err
 	}
