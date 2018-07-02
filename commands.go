@@ -6,8 +6,13 @@ import (
 	"os"
 	"strings"
 
+	"bytes"
+	"path/filepath"
+	"text/template"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jeremaihloo/funny/langs"
+	survey "gopkg.in/AlecAivazis/survey.v1"
 	"gopkg.in/russross/blackfriday.v2"
 )
 
@@ -39,12 +44,80 @@ post = {
 `
 )
 
-func Init(filename, template string) error {
-	data, err := ioutil.ReadFile(template)
+type InitInfo struct {
+	Name        string
+	Description string
+	Author      string
+	Version     string
+	BaseUrl     string
+}
+
+func Init(filename, templateName string) error {
+	if _, err := os.Stat(filename); err == nil {
+		override := false
+		var q = &survey.Confirm{
+			Message: "Api file already exists. Override ?",
+		}
+
+		survey.AskOne(q, &override, nil)
+		if !override {
+			return nil
+		}
+	}
+	data, err := ioutil.ReadFile(templateName)
 	if err != nil {
 		data = []byte(DEFAULT_API_FILE_TEMPLATE)
 	}
-	err = ioutil.WriteFile(filename, data, os.ModePerm)
+	info := InitInfo{}
+	// the questions to ask
+	dir, _ := os.Getwd()
+	l := filepath.SplitList(dir)
+	dir = l[len(l)-1]
+	var qs = []*survey.Question{
+		{
+			Name: "Name",
+			Prompt: &survey.Input{
+				Message: "What is your api file name?",
+				Default: filepath.Base(dir),
+			},
+			Validate: survey.Required,
+		},
+		{
+			Name: "Description",
+			Prompt: &survey.Input{
+				Message: "What is then description of your apis ?",
+			},
+		},
+		{
+			Name: "Author",
+			Prompt: &survey.Input{
+				Message: "Who are you ?",
+			},
+		},
+		{
+			Name: "Version",
+			Prompt: &survey.Input{
+				Message: "What version to start ?",
+			},
+		},
+		{
+			Name: "BaseUrl",
+			Prompt: &survey.Input{
+				Message: "What is the baseUrl of your apis ?",
+			},
+		},
+	}
+	err = survey.Ask(qs, &info)
+	if err != nil {
+		panic(err)
+	}
+	t := template.Must(template.New("api").Parse(string(data)))
+	buffer := new(bytes.Buffer)
+	err = t.Execute(buffer, &info)
+	if err != nil {
+		panic(err)
+	}
+	err = ioutil.WriteFile(filename, buffer.Bytes(), os.ModePerm)
 	if err != nil {
 		return err
 	}
@@ -56,17 +129,19 @@ func Run(filename string, apiNames []string, delay int, outputFile, outputTempla
 	return pica.Run()
 }
 
-func Format(filename string, save bool) error {
+func Format(filename string, save, print bool) (string, error) {
 	fw := strings.Builder{}
 	output := func(text string) {
-		fmt.Printf("%s\n", text)
+		if print {
+			fmt.Printf("%s", text)
+		}
 		if save {
 			fw.WriteString(text)
 		}
 	}
 	buffer, err := ioutil.ReadFile(filename)
 	if err != nil {
-		return fmt.Errorf("parse error %v", err.Error())
+		return "", fmt.Errorf("parse error %v", err.Error())
 	}
 	parser := langs.NewParser(buffer)
 	parser.Consume("")
@@ -89,7 +164,7 @@ func Format(filename string, save bool) error {
 	if save {
 		ioutil.WriteFile(filename, []byte(fw.String()), os.ModePerm)
 	}
-	return nil
+	return fw.String(), nil
 }
 
 func Serve(filename string, port int) error {
