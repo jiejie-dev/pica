@@ -14,6 +14,8 @@ It's inspired deeply by [frank](https://github.com/txthinking/frank).
     - Api version controls, automated version release note.(TODO)
     - Api version diff to show.(TODO)
 
+![screenshots/1.jpg](screenshots/1.jpg)
+![screenshots/2.jpg](screenshots/2.jpg)
 ## Status
 
 It's under development.
