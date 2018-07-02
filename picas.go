@@ -235,6 +235,7 @@ func (p *Pica) runInitPartOfContext(ctx *ApiContext) {
 }
 
 func (p *Pica) RunApiContext() error {
+	p.output.CopyRight()
 
 	p.runInitPartOfContext(p.Ctx)
 

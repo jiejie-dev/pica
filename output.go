@@ -65,7 +65,14 @@ func (o *Output) EchoRequstIng(method string, body []byte) {
 }
 
 func (o *Output) Finished(count int, names string) {
-	color.Green("\n\nFinished. [%d] api requests, [%s] passed", count, names)
+	fmt.Println(o.L("="))
+	color.Green("\nFinished. [%d] api requests, [%s] passed", count, names)
+	fmt.Println(o.L("="))
+}
+
+func (o *Output) CopyRight() {
+	fmt.Println(o.L("="))
+	color.Yellow(DefaultCopyright)
 }
 
 var (

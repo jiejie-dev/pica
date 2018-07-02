@@ -27,7 +27,7 @@ func PrintJson(obj interface{}) {
 			panic(err)
 		}
 		fmt.Println("\nJson:")
-		color.Cyan("%s\n\n", data)
+		color.Cyan("%s", data)
 		break
 	case []byte:
 		var newObj map[string]interface{}
