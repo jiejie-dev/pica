@@ -1,10 +1,12 @@
 package pica
 
 import (
-	"io"
 	"fmt"
+	"io"
 	"os"
 	"strings"
+
+	"github.com/fatih/color"
 )
 
 type Output struct {
@@ -16,7 +18,7 @@ type Output struct {
 func NewOutput(debug bool, writer io.Writer) *Output {
 	return &Output{
 		Debug:            debug,
-		DefaultLineCount: 10,
+		DefaultLineCount: 60,
 		writer:           writer,
 	}
 }
@@ -44,8 +46,26 @@ func (o *Output) L(e string) string {
 	return "\n" + strings.Repeat(e, o.DefaultLineCount)
 }
 
-func (o *Output) Line(e string, count int) string {
+func (o *Output) RepeatLine(e string, count int) string {
 	return "\n" + strings.Repeat(e, count)
+}
+
+func (o *Output) EchoStartRequest(request ApiRequest) {
+	fmt.Println(o.L("="))
+	color.Green("\nStarting request [%s %s %s]\n\n", request.Method, request.Url, request.Name)
+}
+
+func (o *Output) ErrorRequest(err error) {
+	color.Red("do http request error %s", err.Error())
+}
+
+func (o *Output) EchoRequstIng(method string, body []byte) {
+	fmt.Printf("%s ...", method)
+	color.Blue("\n%s\n\n", body)
+}
+
+func (o *Output) Finished(count int, names string) {
+	color.Green("\n\nFinished. [%d] api requests, [%s] passed", count, names)
 }
 
 var (

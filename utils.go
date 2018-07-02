@@ -1,9 +1,11 @@
 package pica
 
 import (
-	"net/http"
-	"fmt"
 	"encoding/json"
+	"fmt"
+	"net/http"
+
+	"github.com/fatih/color"
 	"github.com/jeremaihloo/funny/langs"
 )
 
@@ -24,7 +26,8 @@ func PrintJson(obj interface{}) {
 		if err != nil {
 			panic(err)
 		}
-		fmt.Printf("\nJson:\n%s\n\n", data)
+		fmt.Println("\nJson:")
+		color.Cyan("%s\n\n", data)
 		break
 	case []byte:
 		var newObj map[string]interface{}

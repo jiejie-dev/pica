@@ -1,15 +1,16 @@
 package pica
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
-	"github.com/jeremaihloo/funny/langs"
-	"fmt"
 	"strings"
-	"io/ioutil"
 	"time"
-	"encoding/json"
-	"bytes"
+
+	"github.com/jeremaihloo/funny/langs"
 )
 
 type ApiRequest struct {
@@ -61,6 +62,8 @@ type Pica struct {
 	client *HttpClient
 
 	Ctx *ApiContext
+
+	output *Output
 }
 
 func NewPica(filename string, delay int, output, template string) *Pica {
@@ -70,7 +73,8 @@ func NewPica(filename string, delay int, output, template string) *Pica {
 		Delay:           delay,
 		DocTempalteFile: template,
 
-		vm: langs.NewInterpreterWithScope(langs.Scope{}),
+		vm:     langs.NewInterpreterWithScope(langs.Scope{}),
+		output: DefaultOutput,
 	}
 }
 
@@ -243,7 +247,7 @@ func (p *Pica) RunApiContext() error {
 			time.Sleep(time.Duration(p.Delay))
 		}
 	}
-	fmt.Printf("\n\nFinished. [%d] api requests, [%s] passed", len(p.Ctx.ApiItems), "all")
+	p.output.Finished(len(p.Ctx.ApiItems), "all")
 	return nil
 }
 
@@ -260,15 +264,15 @@ func (p *Pica) setRequestBody(item *ApiItem) {
 	switch item.Request.Method {
 	case "POST":
 		item.Request.Body = p.getBody("post")
-		fmt.Printf("Posting ...\n%s\n\n", item.Request.Body)
+		p.output.EchoRequstIng("Posting", item.Request.Body)
 		break
 	case "PUT":
 		item.Request.Body = p.getBody("put\n\n")
-		fmt.Printf("Putting ...\n%s", item.Request.Body)
+		p.output.EchoRequstIng("Posting", item.Request.Body)
 		break
 	case "PATCH":
 		item.Request.Body = p.getBody("patch")
-		fmt.Printf("Patching ...\n%s\n\n", item.Request.Body)
+		p.output.EchoRequstIng("Posting", item.Request.Body)
 		break
 	}
 }
@@ -295,7 +299,7 @@ func (p *Pica) setRequestHeaderFromVm(item *ApiItem) {
 }
 
 func (p *Pica) RunSingleApi(item *ApiItem) error {
-	fmt.Printf("Starting request [%s %s %s]\n\n", item.Request.Method, item.Request.Url, item.Request.Name)
+	p.output.EchoStartRequest(item.Request)
 	p.vm.Assign("url", item.Request.Url)
 	// Eval init scope statements
 	for _, line := range item.Request.lines {
@@ -308,6 +312,7 @@ func (p *Pica) RunSingleApi(item *ApiItem) error {
 	// do request
 	res, err := p.client.Do(item.Request)
 	if err != nil {
+		p.output.ErrorRequest(err)
 		return fmt.Errorf("do http request error %s", err.Error())
 	}
 	item.Response.Headers = res.Header

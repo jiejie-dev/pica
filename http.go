@@ -42,6 +42,7 @@ func (c *HttpClient) Do(req ApiRequest) (*http.Response, error) {
 		return nil, err
 	}
 
+	fmt.Println(DefaultOutput.L("-"))
 	fmt.Printf("\nResponse\n")
 	if res.StatusCode == 200 {
 		color.Green("Status: %d\n", res.StatusCode)
