@@ -53,6 +53,17 @@ type InitInfo struct {
 }
 
 func Init(filename, templateName string) error {
+	if _, err := os.Stat(filename); err == nil {
+		override := false
+		var q = &survey.Confirm{
+			Message: "Api file already exists. Override ?",
+		}
+
+		survey.AskOne(q, &override, nil)
+		if !override {
+			return nil
+		}
+	}
 	data, err := ioutil.ReadFile(templateName)
 	if err != nil {
 		data = []byte(DEFAULT_API_FILE_TEMPLATE)
@@ -69,8 +80,7 @@ func Init(filename, templateName string) error {
 				Message: "What is your api file name?",
 				Default: filepath.Base(dir),
 			},
-			Validate:  survey.Required,
-			Transform: survey.Title,
+			Validate: survey.Required,
 		},
 		{
 			Name: "Description",
