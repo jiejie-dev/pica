@@ -33,7 +33,7 @@ func (c *HttpClient) Do(req ApiRequest) (*http.Response, error) {
 	}
 	r.Header = req.Headers
 
-	// fmt.Printf("%s %s\n", req.Method, r.URL.String())
+	fmt.Printf("%s %s\n", req.Method, r.URL.String())
 	// print headers
 	PrintHeaders(r.Header)
 

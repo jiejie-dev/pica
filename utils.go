@@ -38,7 +38,14 @@ func PrintJson(obj interface{}) {
 		PrintJson(newObj)
 		break
 	default:
-		panic("unknow type PrintJson")
+		data, err := json.MarshalIndent(obj, "", "  ")
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println("\nJson:")
+		color.Cyan("%s", data)
+		break
+
 	}
 }
 
