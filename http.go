@@ -6,6 +6,8 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/jeremaihloo/funny/langs"
+
 	"github.com/fatih/color"
 )
 
@@ -21,19 +23,25 @@ func NewHttpClient(baseUrl string) *HttpClient {
 	}
 }
 
-func (c *HttpClient) Do(req ApiRequest) (*http.Response, error) {
+func (c *HttpClient) Do(req ApiRequest, vm *langs.Interpreter) (*http.Response, error) {
 	var body io.Reader
 	switch req.Method {
 	case "POST", "PATCH", "PUT":
 		body = bytes.NewReader(req.Body)
 	}
-	r, err := http.NewRequest(req.Method, c.baseUrl+req.Url, body)
+	targetUrl, query, err := CompileUrl(c.baseUrl+req.Url, vm)
+	req.Query = query
+	if err != nil {
+		return nil, err
+	}
+	vm.Assign("targetUrl", targetUrl)
+	r, err := http.NewRequest(req.Method, targetUrl, body)
 	if err != nil {
 		return nil, err
 	}
 	r.Header = req.Headers
 
-	fmt.Printf("%s %s\n", req.Method, r.URL.String())
+	fmt.Printf("%s %s\n", req.Method, targetUrl)
 	// print headers
 	PrintHeaders(r.Header)
 

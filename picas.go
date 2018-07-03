@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	qs "github.com/fixate/go-qs"
 	"github.com/jeremaihloo/funny/langs"
 )
 
@@ -17,10 +18,33 @@ type ApiRequest struct {
 	Headers     http.Header
 	Method      string
 	Url         string
+	Query       Query
 	Name        string
 	Description string
 	Body        []byte
 	lines       langs.Block
+}
+
+type Query map[string]interface{}
+
+func NewQuery(m map[string]interface{}) Query {
+	query := Query{}
+	for k, v := range m {
+		query[k] = v
+	}
+	return query
+}
+
+func ParseQuery(queryString string) (Query, error) {
+	r, err := qs.Unmarshal(queryString)
+	if err != nil {
+		return nil, err
+	}
+	return NewQuery(r), nil
+}
+
+func (query Query) String() (string, error) {
+	return qs.Marshal(query)
 }
 
 type ApiResponse struct {
@@ -311,7 +335,7 @@ func (p *Pica) RunSingleApi(item *ApiItem) error {
 	p.setRequestHeaderFromVm(item)
 
 	// do request
-	res, err := p.client.Do(item.Request)
+	res, err := p.client.Do(item.Request, p.vm)
 	if err != nil {
 		p.output.ErrorRequest(err)
 		return fmt.Errorf("do http request error %s", err.Error())
