@@ -71,6 +71,9 @@ type ApiContext struct {
 	InitVars    langs.Scope
 	InitLines   langs.Block
 	ApiItems    []*ApiItem
+
+	Pica         *Pica
+	VersionNotes *VersionNote
 }
 
 type Pica struct {
@@ -150,6 +153,7 @@ func (p *Pica) ParseApiContext() error {
 	headers := VmMap2HttpHeaders(DefaultHeaders)
 	ctx := &ApiContext{
 		Headers: &headers,
+		Pica:    p,
 	}
 	inited := false
 	index := 0

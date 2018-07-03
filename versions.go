@@ -1,11 +1,15 @@
 package pica
 
 import (
+	"fmt"
+	"time"
+
+	"strings"
+
 	"github.com/sergi/go-diff/diffmatchpatch"
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing/object"
 	"gopkg.in/src-d/go-git.v4/utils/diff"
-	"time"
 )
 
 const (
@@ -27,6 +31,7 @@ type ApiVersionController struct {
 }
 
 func NewApiVersionController(filename string) *ApiVersionController {
+	fmt.Print(filename)
 	r, err := git.PlainOpen(".")
 	if err != nil {
 		panic(err)
@@ -46,6 +51,7 @@ func (v *ApiVersionController) Commit(msg string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	msg = fmt.Sprintf("[Pica] %s", msg)
 	hash, err := w.Commit(msg, &git.CommitOptions{
 		Author: &object.Signature{
 			Name:  "jeremaihloo",
@@ -76,7 +82,24 @@ func (v *ApiVersionController) GetCommits() ([]*object.Commit, error) {
 	}
 	var commits []*object.Commit
 	err = logs.ForEach(func(commit *object.Commit) error {
-		commits = append(commits, commit)
+		// find [Pica] and filename
+		tree, err := commit.Tree()
+		if err != nil {
+			return err
+		}
+		flag := false
+		// ... get the files iterator and print the file
+		tree.Files().ForEach(func(f *object.File) error {
+			if f.Name == v.FileName {
+				fmt.Printf("%s ==> %s\n", f.Name, v.FileName)
+				flag = true
+				return err
+			}
+			return nil
+		})
+		if flag && strings.Index(commit.Message, "[Pica]") > -1 {
+			commits = append(commits, commit)
+		}
 		return nil
 	})
 	if err != nil {
@@ -90,6 +113,15 @@ func (v *ApiVersionController) Notes() (*VersionNote, error) {
 	commits, err := v.GetCommits()
 	if err != nil {
 		return nil, err
+	}
+	if len(commits) < 2 {
+		for _, commit := range commits {
+			commit.Message = strings.Replace(commit.Message, "[Pica]", "", -1)
+			vc := VersionChange{
+				Commit: commit,
+			}
+			vn.Changes = append(vn.Changes, vc)
+		}
 	}
 	for index := 0; index < len(commits)-1; index++ {
 		commit := commits[index]

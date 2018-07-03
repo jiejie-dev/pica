@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"text/template"
 
+	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
 	"github.com/jeremaihloo/funny/langs"
 	survey "gopkg.in/AlecAivazis/survey.v1"
@@ -181,4 +182,27 @@ func Serve(filename string, port int) error {
 		c.Data(200, "text/plain", output)
 	})
 	return r.Run(fmt.Sprintf(":%d", port))
+}
+
+func VersionCommit(commitFile, commitMsg string) {
+	ctrl := NewApiVersionController(commitFile)
+	hash, err := ctrl.Commit(commitMsg)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(hash)
+}
+
+func VersionLog(filename string) {
+	ctrl := NewApiVersionController(filename)
+	commits, err := ctrl.GetCommits()
+	if err != nil {
+		panic(err)
+	}
+	for index, item := range commits {
+		color.Green(item.String())
+		if index != len(commits)-1 {
+			fmt.Println("==========================================================")
+		}
+	}
 }
