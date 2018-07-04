@@ -1,18 +1,21 @@
 # pica
 
+[![Build Status](https://travis-ci.org/jeremaihloo/pica.svg?branch=master)](https://travis-ci.org/jeremaihloo/pica)
+[![go report](https://goreportcard.com/badge/github.com/jeremaihloo/pica)](https://goreportcard.com/badge/github.com/jeremaihloo/pica)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
 > Pica is a restful automated testing tool and document generate tool written in golang.
 
 It's inspired deeply by [frank](https://github.com/txthinking/frank).
 
 ## Features
 
-- Base api test (POST, GET, PUT, DELETE, PATCH)
+- Basic api test (POST, GET, PUT, DELETE, PATCH)
 - Generate api document to markdown file.
 - Benchmark webapi.(TODO)
 - Serve api document as a website.(TODO)
     - Custom theme or css for this website(TODO).
-    - Api version controls, automated version release note.(TODO)
-    - Api version diff to show.(TODO)
+- Api version controls, automated version release note.
+- Api version diff to show.(TODO)
 
 ![screenshots/1.jpg](screenshots/1.jpg)
 ![screenshots/2.jpg](screenshots/2.jpg)
@@ -91,9 +94,9 @@ Commands:
 
 ## TODO
 
-- Document Generate
-- Api Document Server
-- Api Document Version Control
+- ~~Document generation~~
+- Api document server
+- ~~Api document version control~~
 
 ## LICENSE
 
