@@ -91,7 +91,6 @@ func (v *ApiVersionController) GetCommits() ([]*object.Commit, error) {
 		// ... get the files iterator and print the file
 		tree.Files().ForEach(func(f *object.File) error {
 			if f.Name == v.FileName {
-				fmt.Printf("%s ==> %s\n", f.Name, v.FileName)
 				flag = true
 				return err
 			}

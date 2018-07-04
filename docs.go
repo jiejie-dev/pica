@@ -142,7 +142,6 @@ func (g *DocGenerator) Get() ([]byte, error) {
 		panic(err)
 		return nil, err
 	}
-	print(len(note.Changes))
 	g.ctx.VersionNotes = note
 	buffer := new(bytes.Buffer)
 	err = g.template.Execute(buffer, g.ctx)
