@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	qs "github.com/fixate/go-qs"
+	"github.com/fixate/go-qs"
 	"github.com/jeremaihloo/funny/langs"
 )
 
@@ -202,7 +202,11 @@ func (p *Pica) ParseApiContext() error {
 			}
 		default:
 			if inited {
-				ctx.ApiItems[len(ctx.ApiItems)-1].Request.lines = append(ctx.ApiItems[len(ctx.ApiItems)-1].Request.lines, line)
+				if asserting {
+					ctx.ApiItems[len(ctx.ApiItems)-1].Response.lines = append(ctx.ApiItems[len(ctx.ApiItems)-1].Response.lines, line)
+				} else {
+					ctx.ApiItems[len(ctx.ApiItems)-1].Request.lines = append(ctx.ApiItems[len(ctx.ApiItems)-1].Request.lines, line)
+				}
 			} else {
 				ctx.InitLines = append(ctx.InitLines, line)
 			}
