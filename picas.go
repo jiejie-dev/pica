@@ -78,6 +78,7 @@ type ApiContext struct {
 
 type Pica struct {
 	FileName        string
+	ApiNames        []string
 	Output          string
 	Debug           bool
 	DocTempalteFile string
@@ -93,9 +94,10 @@ type Pica struct {
 	output *Output
 }
 
-func NewPica(filename string, delay int, output, template string) *Pica {
+func NewPica(filename string, apiNames []string, delay int, output, template string) *Pica {
 	return &Pica{
 		FileName:        filename,
+		ApiNames:        apiNames,
 		Output:          output,
 		Delay:           delay,
 		DocTempalteFile: template,
@@ -266,12 +268,24 @@ func (p *Pica) runInitPartOfContext(ctx *ApiContext) {
 	p.setCtxHeader(ctx)
 }
 
+func (p *Pica) findNameInApiNames(name string) bool {
+	for _, item := range p.ApiNames {
+		if item == name {
+			return true
+		}
+	}
+	return false
+}
+
 func (p *Pica) RunApiContext() error {
 	p.output.CopyRight()
 
 	p.runInitPartOfContext(p.Ctx)
 
 	for index, item := range p.Ctx.ApiItems {
+		if len(p.ApiNames) != 0 && !p.findNameInApiNames(item.Request.Name) {
+			continue
+		}
 		err := p.RunSingleApi(item)
 		if err != nil {
 			return fmt.Errorf("error when execute %d %s %s", index, item.Request.Name, err.Error())
@@ -356,7 +370,7 @@ func (p *Pica) RunSingleApi(item *ApiItem) error {
 
 	// Assign new header from response to vm
 	headers := HttpHeaders2VmMap(item.Response.Headers)
-	p.vm.Assign("hs", headers)
+	p.vm.Assign("header", headers)
 	p.vm.Assign("status", item.Response.Status)
 	p.vm.Assign("body", item.Response.Body)
 
