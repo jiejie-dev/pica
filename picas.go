@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	qs "github.com/fixate/go-qs"
+	"github.com/fixate/go-qs"
 	"github.com/jeremaihloo/funny/langs"
 )
 
@@ -78,6 +78,7 @@ type ApiContext struct {
 
 type Pica struct {
 	FileName        string
+	ApiNames        []string
 	Output          string
 	Debug           bool
 	DocTempalteFile string
@@ -93,9 +94,10 @@ type Pica struct {
 	output *Output
 }
 
-func NewPica(filename string, delay int, output, template string) *Pica {
+func NewPica(filename string, apiNames []string, delay int, output, template string) *Pica {
 	return &Pica{
 		FileName:        filename,
+		ApiNames:        apiNames,
 		Output:          output,
 		Delay:           delay,
 		DocTempalteFile: template,
@@ -202,7 +204,11 @@ func (p *Pica) ParseApiContext() error {
 			}
 		default:
 			if inited {
-				ctx.ApiItems[len(ctx.ApiItems)-1].Request.lines = append(ctx.ApiItems[len(ctx.ApiItems)-1].Request.lines, line)
+				if asserting {
+					ctx.ApiItems[len(ctx.ApiItems)-1].Response.lines = append(ctx.ApiItems[len(ctx.ApiItems)-1].Response.lines, line)
+				} else {
+					ctx.ApiItems[len(ctx.ApiItems)-1].Request.lines = append(ctx.ApiItems[len(ctx.ApiItems)-1].Request.lines, line)
+				}
 			} else {
 				ctx.InitLines = append(ctx.InitLines, line)
 			}
@@ -262,12 +268,24 @@ func (p *Pica) runInitPartOfContext(ctx *ApiContext) {
 	p.setCtxHeader(ctx)
 }
 
+func (p *Pica) findNameInApiNames(name string) bool {
+	for _, item := range p.ApiNames {
+		if item == name {
+			return true
+		}
+	}
+	return false
+}
+
 func (p *Pica) RunApiContext() error {
 	p.output.CopyRight()
 
 	p.runInitPartOfContext(p.Ctx)
 
 	for index, item := range p.Ctx.ApiItems {
+		if len(p.ApiNames) != 0 && !p.findNameInApiNames(item.Request.Name) {
+			continue
+		}
 		err := p.RunSingleApi(item)
 		if err != nil {
 			return fmt.Errorf("error when execute %d %s %s", index, item.Request.Name, err.Error())
@@ -352,13 +370,13 @@ func (p *Pica) RunSingleApi(item *ApiItem) error {
 
 	// Assign new header from response to vm
 	headers := HttpHeaders2VmMap(item.Response.Headers)
-	p.vm.Assign("headers", headers)
+	p.vm.Assign("header", headers)
 	p.vm.Assign("status", item.Response.Status)
 	p.vm.Assign("body", item.Response.Body)
 
 	contentType := item.Request.Headers.Get("Content-Type")
 	if strings.HasPrefix(contentType, "application/json") {
-		var jResults interface{}
+		var jResults map[string]langs.Value
 		err := json.Unmarshal(item.Response.Body, &jResults)
 		if err != nil {
 			panic(fmt.Errorf("json binding %s %s", err.Error(), item.Response.Body))

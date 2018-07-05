@@ -61,7 +61,7 @@ func (o *Output) ErrorRequest(err error) {
 
 func (o *Output) EchoRequstIng(method string, body []byte) {
 	fmt.Printf("%s ...", method)
-	color.Blue("\n%s\n\n", body)
+	color.Yellow("\n%s\n\n", body)
 }
 
 func (o *Output) Finished(count int, names string) {

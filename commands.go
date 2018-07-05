@@ -126,7 +126,7 @@ func Init(filename, templateName string) error {
 }
 
 func Run(filename string, apiNames []string, delay int, outputFile, outputTemplate string) error {
-	pica := NewPica(filename, delay, outputFile, outputTemplate)
+	pica := NewPica(filename, apiNames, delay, outputFile, outputTemplate)
 	return pica.Run()
 }
 

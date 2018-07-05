@@ -59,6 +59,8 @@ var (
 )
 
 func main() {
+
+	c, err := app.Parse(os.Args[1:])
 	if !*debug {
 		defer func() {
 			if err := recover(); err != nil {
@@ -66,7 +68,7 @@ func main() {
 			}
 		}()
 	}
-	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
+	switch kingpin.MustParse(c, err) {
 	case cmdRun.FullCommand():
 		pica.Run(*runFileName, *runApiNames, *runDelay, *runOutput, *runOutputTemplate)
 		break
