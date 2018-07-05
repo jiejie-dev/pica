@@ -31,10 +31,9 @@ Author: {{.Author}}
 
 ### Headers
 
-| --- | --- | -- |
 | name| value | description |
-{{range $i, $v := .Headers}}
-| {{$i}} | {{$v}} | - |
+| --- | --- | -- |
+{{range $i, $v := .Headers}}| {{$i}} | {{$v}} | - |
 {{end}}
 
 ## API
@@ -51,20 +50,19 @@ Author: {{.Author}}
 {{end}}
 {{if $item.Request.Body}}
 #### Body
-| --- | --- | -- |
 | name | type | description |
-{{range $key, $val := $item.Request.Headers}}
-| {{$key}} | {{$val}} | - |
+| --- | --- | -- |
+{{range $key, $val := $item.Request.Headers}}| {{$key}} | {{$val}} | - |
 {{end}}
 {{end}}
 
 #### Response
 
 Headers:
-| --- | --- | -- |
+
 | name| value | description |
-{{range $i, $v := $item.Response.Headers}}
-| {{$i}} | {{$v}} | - |
+| --- | --- | -- |
+{{range $i, $v := $item.Response.Headers}}| {{$i}} | {{$v}} | - |
 {{end}}
 
 {{if $item.Response.Body}}
