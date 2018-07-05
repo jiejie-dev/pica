@@ -358,7 +358,7 @@ func (p *Pica) RunSingleApi(item *ApiItem) error {
 
 	contentType := item.Request.Headers.Get("Content-Type")
 	if strings.HasPrefix(contentType, "application/json") {
-		var jResults interface{}
+		var jResults map[string]langs.Value
 		err := json.Unmarshal(item.Response.Body, &jResults)
 		if err != nil {
 			panic(fmt.Errorf("json binding %s %s", err.Error(), item.Response.Body))
