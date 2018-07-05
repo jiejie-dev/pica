@@ -356,7 +356,7 @@ func (p *Pica) RunSingleApi(item *ApiItem) error {
 
 	// Assign new header from response to vm
 	headers := HttpHeaders2VmMap(item.Response.Headers)
-	p.vm.Assign("headers", headers)
+	p.vm.Assign("hs", headers)
 	p.vm.Assign("status", item.Response.Status)
 	p.vm.Assign("body", item.Response.Body)
 
