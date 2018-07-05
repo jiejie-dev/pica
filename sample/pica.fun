@@ -4,7 +4,7 @@
 name = 'demo'
 description = 'This is a demo for pica.'
 version = '0.0.1'
-author = 'jeremaihloo@gmail.com jeremaihloo'
+author = 'jeremaihloo@gmail.com<jeremaihloo>'
 baseUrl = 'http://localhost:8080'
 
 headers = {

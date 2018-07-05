@@ -25,6 +25,7 @@ var (
 > {{.Description}}
 
 Version: {{.Version}}
+
 Author: {{.Author}}
 
 ## Init Scope
