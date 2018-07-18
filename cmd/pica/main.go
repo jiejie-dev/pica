@@ -15,7 +15,7 @@ var (
 	// runs
 	cmdRun            = app.Command("run", "Run api file.")
 	runFileName       = cmdRun.Arg("filename", "Api file.").Default("pica.fun").ExistingFile()
-	runApiNames       = cmdRun.Arg("apiNames", "Api names to excute").Strings()
+	runAPINames       = cmdRun.Arg("apiNames", "Api names to excute").Strings()
 	runDelay          = cmdRun.Flag("delay", "Delay after one api request.").Int()
 	runOutput         = cmdRun.Flag("output", "Output file.").String()
 	runOutputTemplate = cmdRun.Flag("template", "Doc template.").Default("pica.doc.t").String()
@@ -70,13 +70,16 @@ func main() {
 	}
 	switch kingpin.MustParse(c, err) {
 	case cmdRun.FullCommand():
-		pica.Run(*runFileName, *runApiNames, *runDelay, *runOutput, *runOutputTemplate)
+		pica.Run(*runFileName, *runAPINames, *runDelay, *runOutput, *runOutputTemplate)
 		break
 	case cmdFormat.FullCommand():
 		pica.Format(*formatFileName, *formatSave, *formatPrint)
 		break
 	case cmdServer.FullCommand():
-		pica.Serve(*apiDocFile, *docPort)
+		err := pica.Serve(*apiDocFile, *docPort)
+		if err != nil {
+			panic(err)
+		}
 		break
 	case cmdInit.FullCommand():
 		pica.Init(*cmdInitFileName, *cmdInitTemplate)

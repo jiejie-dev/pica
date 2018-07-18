@@ -3,6 +3,8 @@ package pica
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
+	"net/http"
 	"os"
 	"strings"
 
@@ -12,9 +14,11 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
+	"github.com/howeyc/fsnotify"
 	"github.com/jeremaihloo/funny/langs"
+	"github.com/shurcooL/github_flavored_markdown"
+	"github.com/shurcooL/github_flavored_markdown/gfmstyle"
 	survey "gopkg.in/AlecAivazis/survey.v1"
-	"gopkg.in/russross/blackfriday.v2"
 )
 
 const (
@@ -176,12 +180,83 @@ func Serve(filename string, port int) error {
 	if err != nil {
 		return err
 	}
-	output := blackfriday.Run(input)
+	output := github_flavored_markdown.Markdown(input)
+	template := `
+	<!DOCTYPE html>
+	<html lang="zh-CN">
+		<head>
+			<meta charset="utf-8">
+			<meta http-equiv="X-UA-Compatible" content="IE=edge">
+			<meta name="viewport" content="width=device-width, initial-scale=1">
+
+			<title>文档</title>
+			<link href="/assets/gfm.css" media="all" rel="stylesheet" type="text/css" />
+		</head>
+		<body>
+			<article class="markdown-body entry-content" style="padding: 30px;">
+			[body]
+			</article>
+		</body>
+	</html>
+	`
 	r := gin.Default()
+	r.StaticFS("/assets/", gfmstyle.Assets)
+
 	r.GET("/", func(c *gin.Context) {
-		c.Data(200, "text/plain", output)
+		rs := strings.Replace(template, "[body]", string(output), -1)
+		c.Data(200, "text/html", []byte(rs))
 	})
-	return r.Run(fmt.Sprintf(":%d", port))
+
+	srv := &http.Server{
+		Addr:    ":9090",
+		Handler: r,
+	}
+
+	run := func() {
+		// service connections
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("listen: %s\n", err)
+		}
+	}
+
+	go run()
+
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	done := make(chan bool)
+
+	// Process events
+	go func() {
+		for {
+			select {
+			case <-watcher.Event:
+				fmt.Println("update")
+
+				input, err = ioutil.ReadFile(filename)
+				if err != nil {
+					panic(err)
+				}
+				output = github_flavored_markdown.Markdown(input)
+			case err := <-watcher.Error:
+				log.Println("error:", err)
+			}
+		}
+	}()
+
+	err = watcher.Watch(filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Hang so program doesn't exit
+	<-done
+
+	/* ... do stuff ... */
+	watcher.Close()
+	return nil
 }
 
 func VersionCommit(commitFile, commitMsg string) {

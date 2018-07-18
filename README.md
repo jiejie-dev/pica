@@ -9,7 +9,7 @@ It's inspired deeply by [frank](https://github.com/txthinking/frank).
 
 ## Features
 
-- Basic api test (POST, GET, PUT, DELETE, PATCH)
+- Basic api test (support POST, GET, PUT, DELETE, PATCH)
 - Generate api document to markdown file.
 - Benchmark webapi.(TODO)
 - Serve api document as a website.(TODO)
