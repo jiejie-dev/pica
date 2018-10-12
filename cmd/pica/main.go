@@ -70,7 +70,10 @@ func main() {
 	}
 	switch kingpin.MustParse(c, err) {
 	case cmdRun.FullCommand():
-		pica.Run(*runFileName, *runAPINames, *runDelay, *runOutput, *runOutputTemplate)
+		err := pica.Run(*runFileName, *runAPINames, *runDelay, *runOutput, *runOutputTemplate)
+		if err != nil {
+			panic(err)
+		}
 		break
 	case cmdFormat.FullCommand():
 		pica.Format(*formatFileName, *formatSave, *formatPrint)

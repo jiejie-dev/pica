@@ -6,6 +6,8 @@ import (
 
 	"strings"
 
+	"errors"
+
 	"github.com/sergi/go-diff/diffmatchpatch"
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing/object"
@@ -34,7 +36,7 @@ func NewApiVersionController(filename string) *ApiVersionController {
 	fmt.Print(filename)
 	r, err := git.PlainOpen(".")
 	if err != nil {
-		panic(err)
+		panic(errors.New(err.Error() + "please make sure you are under git root dir"))
 	}
 	return &ApiVersionController{
 		rep:      r,

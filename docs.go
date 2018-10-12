@@ -33,7 +33,7 @@ Author: {{.Author}}
 ### Headers
 
 | name| value | description |
-| --- | --- | -- |
+| --- | --- | --- |
 {{range $i, $v := .Headers}}| {{$i}} | {{$v}} | - |
 {{end}}
 
@@ -46,13 +46,13 @@ Author: {{.Author}}
 {{end}}
 {{if $item.Request.Query}}
 #### Query
-| --- | --- | -- |
+| --- | --- | --- |
 | name | type | description |
 {{end}}
 {{if $item.Request.Body}}
 #### Body
 | name | type | description |
-| --- | --- | -- |
+| --- | --- | --- |
 {{range $key, $val := $item.Request.Headers}}| {{$key}} | {{$val}} | - |
 {{end}}
 {{end}}
@@ -62,7 +62,7 @@ Author: {{.Author}}
 Headers:
 
 | name| value | description |
-| --- | --- | -- |
+| --- | --- | --- |
 {{range $i, $v := $item.Response.Headers}}| {{$i}} | {{$v}} | - |
 {{end}}
 

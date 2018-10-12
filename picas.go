@@ -3,6 +3,7 @@ package pica
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -131,7 +132,9 @@ func (p *Pica) Run() error {
 
 func (p *Pica) Document() error {
 	p.runInitPartOfContext(p.Ctx)
-
+	if !strings.HasSuffix(p.Output, ".md") && !strings.HasSuffix(p.Output, ".html") {
+		return errors.New("only .md and .html supported")
+	}
 	data, err := ioutil.ReadFile(p.DocTempalteFile)
 	if err != nil {
 		data = []byte(DEFAULT_DOC_TEMPLATE)
@@ -142,12 +145,16 @@ func (p *Pica) Document() error {
 		return err
 	}
 	fmt.Printf("%s\n", results)
-	if _, err := os.Stat(p.Output); err == nil {
-		err := ioutil.WriteFile(p.Output, results, os.ModePerm)
-		if err != nil {
-			return err
-		}
+	// if _, err := os.Stat(p.Output); err == nil {
+	if strings.HasSuffix(p.Output, ".html") {
+		results = []byte(buildHtml(results))
 	}
+	err = ioutil.WriteFile(p.Output, results, os.ModePerm)
+	if err != nil {
+		return err
+	}
+	// }
+	// return errors.New("file already exists")
 	return nil
 }
 
