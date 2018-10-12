@@ -16,37 +16,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/howeyc/fsnotify"
 	"github.com/jeremaihloo/funny/langs"
+	_ "github.com/jeremaihloo/pica/statik"
+	"github.com/rakyll/statik/fs"
 	"github.com/shurcooL/github_flavored_markdown"
-	"github.com/shurcooL/github_flavored_markdown/gfmstyle"
 	survey "gopkg.in/AlecAivazis/survey.v1"
-)
-
-const (
-	DEFAULT_API_FILE_TEMPLATE = `
-name = '{{.Name}}'
-description = '{{.Description}}'
-author = '{{.Author}}'
-version = '{{.Version}}'
-
-baseUrl = '{{.BaseUrl}}'
-
-headers = {
-    'Content-Type' = 'application/json'
-}
-
-// Apis format: [method] [path] [description]
-
-// GET /api/users 获取用户列表
-headers['Authorization'] = 'slfjaslkfjlasdjfjas=='
-
-// POST /api/users 新建用户
-post = {
-    // 用户名
-    'name' = 'test'
-    // 密码
-    'age' = 10
-}
-`
 )
 
 type InitInfo struct {
@@ -71,6 +44,18 @@ func Init(filename, templateName string) error {
 	}
 	data, err := ioutil.ReadFile(templateName)
 	if err != nil {
+		sfs, err := fs.New()
+		if err != nil {
+			return err
+		}
+		file, err := sfs.Open("/api_file_template.fun")
+		if err != nil {
+			return err
+		}
+		DEFAULT_API_FILE_TEMPLATE, err := ioutil.ReadAll(file)
+		if err != nil {
+			return err
+		}
 		data = []byte(DEFAULT_API_FILE_TEMPLATE)
 	}
 	info := InitInfo{}
@@ -181,26 +166,8 @@ func Serve(filename string, port int) error {
 		return err
 	}
 	output := github_flavored_markdown.Markdown(input)
-	template := `
-	<!DOCTYPE html>
-	<html lang="zh-CN">
-		<head>
-			<meta charset="utf-8">
-			<meta http-equiv="X-UA-Compatible" content="IE=edge">
-			<meta name="viewport" content="width=device-width, initial-scale=1">
-
-			<title>文档</title>
-			<link href="/assets/gfm.css" media="all" rel="stylesheet" type="text/css" />
-		</head>
-		<body>
-			<article class="markdown-body entry-content" style="padding: 30px;">
-			[body]
-			</article>
-		</body>
-	</html>
-	`
 	r := gin.Default()
-	r.StaticFS("/assets/", gfmstyle.Assets)
+	template := buildHtml(input)
 
 	r.GET("/", func(c *gin.Context) {
 		rs := strings.Replace(template, "[body]", string(output), -1)

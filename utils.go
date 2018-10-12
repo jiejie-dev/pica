@@ -1,18 +1,21 @@
+//go:generate statik -src=./assets
+//go:generate go fmt statik/statik.go
+
 package pica
 
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strings"
 
 	"regexp"
 
 	"github.com/fatih/color"
-	"github.com/gin-gonic/gin"
 	"github.com/jeremaihloo/funny/langs"
+	"github.com/rakyll/statik/fs"
 	"github.com/shurcooL/github_flavored_markdown"
-	"github.com/shurcooL/github_flavored_markdown/gfmstyle"
 )
 
 func PrintHeaders(headers http.Header) {
@@ -109,27 +112,16 @@ func CompileUrl(url string, vm *langs.Interpreter) (string, Query, error) {
 
 func buildHtml(input []byte) string {
 	output := github_flavored_markdown.Markdown(input)
-	template := `
-	<!DOCTYPE html>
-	<html lang="zh-CN">
-		<head>
-			<meta charset="utf-8">
-			<meta http-equiv="X-UA-Compatible" content="IE=edge">
-			<meta name="viewport" content="width=device-width, initial-scale=1">
+	statikFS, _ := fs.New()
+	tFile, err := statikFS.Open("/doc_template.html")
+	if err != nil {
+		panic(err)
+	}
+	template, err := ioutil.ReadAll(tFile)
+	if err != nil {
+		panic(err)
+	}
 
-			<title>文档</title>
-			<link href="/assets/gfm.css" media="all" rel="stylesheet" type="text/css" />
-		</head>
-		<body>
-			<article class="markdown-body entry-content" style="padding: 30px;">
-			[body]
-			</article>
-		</body>
-	</html>
-	`
-	r := gin.Default()
-	r.StaticFS("/assets/", gfmstyle.Assets)
-
-	rs := strings.Replace(template, "[body]", string(output), -1)
+	rs := strings.Replace(string(template), "[body]", string(output), -1)
 	return rs
 }

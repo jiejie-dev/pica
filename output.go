@@ -3,10 +3,13 @@ package pica
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"strings"
 
 	"github.com/fatih/color"
+	_ "github.com/jeremaihloo/pica/statik"
+	"github.com/rakyll/statik/fs"
 )
 
 type Output struct {
@@ -72,7 +75,19 @@ func (o *Output) Finished(count int, names string) {
 
 func (o *Output) CopyRight() {
 	fmt.Println(o.L("="))
-	color.Yellow(DefaultCopyright)
+	sfs, err := fs.New()
+	if err != nil {
+		panic(err)
+	}
+	file, err := sfs.Open("/copyright.txt")
+	if err != nil {
+		panic(err)
+	}
+	DefaultCopyright, err := ioutil.ReadAll(file)
+	if err != nil {
+		panic(err)
+	}
+	color.Yellow(string(DefaultCopyright))
 }
 
 var (
