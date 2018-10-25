@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type BuiltinFunction = func(interpreter *Interpreter, args []Value) Value
+type BuiltinFunction func(interpreter *Interpreter, args []Value) Value
 
 var (
 	FUNCTIONS = map[string]BuiltinFunction{

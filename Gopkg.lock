@@ -104,7 +104,7 @@
   branch = "master"
   name = "github.com/jeremaihloo/funny"
   packages = ["langs"]
-  revision = "801ebbc8f22464e762b7edc43ac2dcf39549db17"
+  revision = "64f9285b9f32fb5e55839bb31ec3d94dc6f8d522"
 
 [[projects]]
   name = "github.com/json-iterator/go"
@@ -170,6 +170,12 @@
   packages = ["."]
   revision = "c37440a7cf42ac63b919c752ca73a85067e05992"
   version = "v0.2.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  revision = "816c9085562cd7ee03e7f8188a1cfd942858cded"
 
 [[projects]]
   name = "github.com/pmezard/go-difflib"
@@ -310,7 +316,7 @@
     "ssh/agent",
     "ssh/knownhosts"
   ]
-  revision = "0c41d7ab0a0ee717d4590a44bcb987dfd9e183eb"
+  revision = "74cb1d3d52f4c01cbfb44c1b50d204462f3124c7"
 
 [[projects]]
   branch = "master"
@@ -434,6 +440,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7fa3b4bf6e209fa9684fa5e8b4f416d1da0df73a5e0ff7aefcc66fa4c3cb7aba"
+  inputs-digest = "dcd64d7bf04f8509e5c522ad46a952728d571b8d63ffc4d81e48bbdf97fd5bbb"
   solver-name = "gps-cdcl"
   solver-version = 1

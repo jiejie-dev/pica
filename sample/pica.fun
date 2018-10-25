@@ -14,7 +14,7 @@ headers = {
 // Apis format: [method] [path] [description]
 
 // GET /api/users 获取用户列表
-headers.Authorization = 'slfjaslkfjlasdjfjas=='
+headers.Authorization = 'slfjadslkfjlasdjfjas=='
 headers['Content-Type'] = 'application/json'
 
 // POST /api/users 新建用户

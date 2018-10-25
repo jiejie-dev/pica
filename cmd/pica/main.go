@@ -70,7 +70,8 @@ func main() {
 	}
 	switch kingpin.MustParse(c, err) {
 	case cmdRun.FullCommand():
-		err := pica.Run(*runFileName, *runAPINames, *runDelay, *runOutput, *runOutputTemplate)
+		apiRunner := pica.NewApiRunner(*runFileName, *runAPINames, *runDelay)
+		err := apiRunner.Run()
 		if err != nil {
 			panic(err)
 		}

@@ -59,6 +59,10 @@
 
 [[constraint]]
   branch = "master"
+  name = "github.com/pkg/errors"
+
+[[constraint]]
+  branch = "master"
   name = "github.com/rakyll/statik"
 
 [[constraint]]
