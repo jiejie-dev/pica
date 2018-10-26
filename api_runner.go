@@ -208,6 +208,7 @@ func (runner *ApiRunner) ParseApiItems() error {
 				}
 				apiItem := &ApiItem{
 					Request: &req,
+					Response:&ApiResponse{},
 				}
 				runner.ApiItems = append(runner.ApiItems, apiItem)
 			}
