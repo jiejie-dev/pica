@@ -1,9 +1,11 @@
 package pica
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"strings"
 
@@ -88,6 +90,46 @@ func (o *Output) CopyRight() {
 		panic(err)
 	}
 	color.Yellow(string(DefaultCopyright))
+}
+
+func (o *Output) Headers(headers http.Header) {
+	fmt.Printf("Headers:\n")
+	for key, _ := range headers {
+		fmt.Printf("%s: %s\n", key, headers.Get(key))
+	}
+}
+
+func (o *Output) Json(obj interface{}) {
+	switch obj := obj.(type) {
+	case map[string]interface{}:
+		o.Json(&obj)
+		break
+	case *map[string]interface{}:
+		data, err := json.MarshalIndent(obj, "", "  ")
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println("\nJson:")
+		color.Cyan("%s", data)
+		break
+	case []byte:
+		var newObj map[string]interface{}
+		err := json.Unmarshal(obj, &newObj)
+		if err != nil {
+			panic(err)
+		}
+		o.Json(newObj)
+		break
+	default:
+		data, err := json.MarshalIndent(obj, "", "  ")
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println("\nJson:")
+		color.Cyan("%s", data)
+		break
+
+	}
 }
 
 var (

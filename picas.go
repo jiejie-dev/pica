@@ -1,7 +1,6 @@
 package pica
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -58,8 +57,8 @@ type ApiResponse struct {
 }
 
 type ApiItem struct {
-	Request  ApiRequest
-	Response ApiResponse
+	Request  *ApiRequest
+	Response *ApiResponse
 }
 
 type ApiContext struct {
@@ -88,7 +87,6 @@ type Pica struct {
 	vm     *langs.Interpreter
 	parser *langs.Parser
 	Block  langs.Block
-	client *HttpClient
 
 	Ctx *ApiContext
 
@@ -197,7 +195,7 @@ func (p *Pica) ParseApiContext() error {
 					req.Description = texts[3]
 				}
 				apiItem := &ApiItem{
-					Request: req,
+					Request: &req,
 				}
 				ctx.ApiItems = append(ctx.ApiItems, apiItem)
 			}
@@ -269,7 +267,7 @@ func (p *Pica) runInitPartOfContext(ctx *ApiContext) {
 		p.vm.EvalStatement(line)
 	}
 	ctx.BaseUrl = p.vm.Lookup("baseUrl").(string)
-	p.client = NewHttpClient(ctx.BaseUrl)
+	//p.client = NewHttpClient(ctx.BaseUrl)
 
 	p.setApiInfoFromVmIntoCtx(ctx)
 	p.setCtxHeader(ctx)
@@ -289,14 +287,14 @@ func (p *Pica) RunApiContext() error {
 
 	p.runInitPartOfContext(p.Ctx)
 
-	for index, item := range p.Ctx.ApiItems {
+	for _, item := range p.Ctx.ApiItems {
 		if len(p.ApiNames) != 0 && !p.findNameInApiNames(item.Request.Name) {
 			continue
 		}
-		err := p.RunSingleApi(item)
-		if err != nil {
-			return fmt.Errorf("error when execute %d %s %s", index, item.Request.Name, err.Error())
-		}
+		//err := p.RunSingleApi(item)
+		//if err != nil {
+		//	return fmt.Errorf("error when execute %d %s %s", index, item.Request.Name, err.Error())
+		//}
 		if p.Delay > 0 {
 			time.Sleep(time.Duration(p.Delay))
 		}
@@ -352,51 +350,50 @@ func (p *Pica) setRequestHeaderFromVm(item *ApiItem) {
 	}
 }
 
-func (p *Pica) RunSingleApi(item *ApiItem) error {
-	p.output.EchoStartRequest(item.Request)
-	p.vm.Assign("url", item.Request.Url)
-	// Eval init scope statements
-	for _, line := range item.Request.lines {
-		p.vm.EvalStatement(line)
-	}
-
-	p.setRequestBody(item)
-	p.setRequestHeaderFromVm(item)
-
-	// do request
-	res, err := p.client.Do(item.Request, p.vm)
-	if err != nil {
-		p.output.ErrorRequest(err)
-		return fmt.Errorf("do http request error %s", err.Error())
-	}
-	item.Response.Headers = res.Header
-	item.Response.Status = res.StatusCode
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(res.Body)
-	item.Response.Body = buf.Bytes()
-
-	// Assign new header from response to vm
-	headers := HttpHeaders2VmMap(item.Response.Headers)
-	p.vm.Assign("header", headers)
-	p.vm.Assign("status", item.Response.Status)
-	p.vm.Assign("body", item.Response.Body)
-
-	contentType := item.Request.Headers.Get("Content-Type")
-	if strings.HasPrefix(contentType, "application/json") {
-		var jResults map[string]langs.Value
-		err := json.Unmarshal(item.Response.Body, &jResults)
-		if err != nil {
-			panic(fmt.Errorf("json binding %s %s", err.Error(), item.Response.Body))
-		}
-		p.vm.Assign("json", jResults)
-
-		PrintJson(&jResults)
-	}
-
-	// Eval item response statement
-	for _, line := range item.Response.lines {
-		p.vm.EvalStatement(line)
-	}
-
-	return nil
-}
+//func (p *Pica) RunSingleApi(item *ApiItem) error {
+//	p.output.EchoStartRequest(item.Request)
+//	p.vm.Assign("url", item.Request.Url)
+//	// Eval init scope statements
+//	for _, line := range item.Request.lines {
+//		p.vm.EvalStatement(line)
+//	}
+//
+//	p.setRequestBody(item)
+//	p.setRequestHeaderFromVm(item)
+//
+//	// do request
+//	res, err := p.client.Do(item.Request, p.vm)
+//	if err != nil {
+//		p.output.ErrorRequest(err)
+//		return fmt.Errorf("do http request error %s", err.Error())
+//	}
+//	item.Response.Headers = res.Header
+//	item.Response.Status = res.StatusCode
+//	buf := new(bytes.Buffer)
+//	buf.ReadFrom(res.Body)
+//	item.Response.Body = buf.Bytes()
+//
+//	// Assign new header from response to vm
+//	headers := HttpHeaders2VmMap(item.Response.Headers)
+//	p.vm.Assign("header", headers)
+//	p.vm.Assign("status", item.Response.Status)
+//	p.vm.Assign("body", item.Response.Body)
+//
+//	contentType := item.Request.Headers.Get("Content-Type")
+//	if strings.HasPrefix(contentType, "application/json") {
+//		var jResults map[string]langs.Value
+//		err := json.Unmarshal(item.Response.Body, &jResults)
+//		if err != nil {
+//			panic(fmt.Errorf("json binding %s %s", err.Error(), item.Response.Body))
+//		}
+//		p.vm.Assign("json", jResults)
+//
+//	}
+//
+//	// Eval item response statement
+//	for _, line := range item.Response.lines {
+//		p.vm.EvalStatement(line)
+//	}
+//
+//	return nil
+//}
