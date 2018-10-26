@@ -34,6 +34,7 @@ func NewApiRunner(filename string, apiNames []string, delay int) *ApiRunner {
 
 		client: http.DefaultClient,
 		vm:     langs.NewInterpreterWithScope(langs.Scope{}),
+		output: DefaultOutput,
 	}
 }
 
@@ -114,11 +115,17 @@ func (runner *ApiRunner) RunSingle(item *ApiItem) error {
 		var jResults map[string]langs.Value
 		err := json.Unmarshal(item.Response.Body, &jResults)
 		if err != nil {
-			panic(fmt.Errorf("json binding %s %s", err.Error(), item.Response.Body))
+			color.Red(fmt.Sprintf("json binding %s %s", err.Error(), item.Response.Body))
 		}
 		runner.vm.Assign("json", jResults)
 
 		runner.output.Json(&jResults)
+	} else {
+		resData, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			color.Red(err.Error())
+		}
+		fmt.Print(string(resData))
 	}
 
 	// Eval item response statement
@@ -130,21 +137,26 @@ func (runner *ApiRunner) RunSingle(item *ApiItem) error {
 }
 
 func (runner *ApiRunner) DoApiRequest(req *ApiRequest) (*http.Response, error) {
-	httpReq, err := CreateHttpRequest(req, runner)
-	// print headers
-	runner.output.Headers(httpReq.Header)
 
+	runner.output.EchoStartRequest(req, runner)
+
+	httpReq, err := CreateHttpRequest(req, runner)
+	if err != nil {
+		return nil, err
+	}
+
+	runner.output.Headers(httpReq.Header)
+	runner.output.RequestBody(httpReq, runner)
 	res, err := runner.client.Do(httpReq)
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println(DefaultOutput.L("-"))
-	fmt.Printf("\nResponse\n")
+	runner.output.Echo("\nResponse ")
 	if res.StatusCode == 200 {
-		color.Green("Status: %d\n", res.StatusCode)
+		color.Green("Status: %d\n\n", res.StatusCode)
 	} else {
-		color.Red("Status: %d\n", res.StatusCode)
+		color.Red("Status: %d\n\n", res.StatusCode)
 	}
 	runner.output.Headers(res.Header)
 	return res, nil

@@ -90,6 +90,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/hokaccha/go-prettyjson"
+  packages = ["."]
+  revision = "f579f869bbfea48a61fbea09207cadd1aaeceb83"
+
+[[projects]]
+  branch = "master"
   name = "github.com/howeyc/fsnotify"
   packages = ["."]
   revision = "f0c08ee9c60704c1879025f2ae0ff3e000082c13"
@@ -440,6 +446,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "dcd64d7bf04f8509e5c522ad46a952728d571b8d63ffc4d81e48bbdf97fd5bbb"
+  inputs-digest = "91abe9762696c3025ed68563bda0e68a93471eb449f151cdf3e4a230d6b1cee7"
   solver-name = "gps-cdcl"
   solver-version = 1

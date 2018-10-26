@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
+	"github.com/hokaccha/go-prettyjson"
 	_ "github.com/jeremaihloo/pica/statik"
 	"github.com/rakyll/statik/fs"
 )
@@ -55,9 +56,16 @@ func (o *Output) RepeatLine(e string, count int) string {
 	return "\n" + strings.Repeat(e, count)
 }
 
-func (o *Output) EchoStartRequest(request ApiRequest) {
+func (o *Output) EchoStartRequest(request *ApiRequest, runner *ApiRunner) error {
 	fmt.Println(o.L("="))
-	color.Green("\nStarting request [%s %s %s]\n\n", request.Method, request.Url, request.Name)
+	fmt.Println()
+	color.Green("%s %s %s", request.Method, request.Url, request.Name)
+	targetUrl, err := getTargetUrl(request, runner)
+	if err != nil {
+		return err
+	}
+	color.Blue("\nRequest %s\n\n", targetUrl)
+	return nil
 }
 
 func (o *Output) ErrorRequest(err error) {
@@ -93,10 +101,34 @@ func (o *Output) CopyRight() {
 }
 
 func (o *Output) Headers(headers http.Header) {
-	fmt.Printf("Headers:\n")
 	for key, _ := range headers {
 		fmt.Printf("%s: %s\n", key, headers.Get(key))
 	}
+	fmt.Println()
+}
+
+func (o *Output) RequestBody(req *http.Request, runner *ApiRunner) error {
+	if req.Method != "GET" {
+		body := runner.vm.Lookup(strings.ToLower(req.Method))
+		data, err := prettyjson.Marshal(body)
+		if err != nil {
+			return err
+		}
+		fmt.Println(string(data))
+	}
+	return nil
+}
+
+func (o *Output) ResponseBody(res *http.Response) {
+
+}
+
+func (o *Output) Echo(s string) {
+	fmt.Printf(s)
+}
+
+func (o *Output) Echoln(s string) {
+	fmt.Println(s)
 }
 
 func (o *Output) Json(obj interface{}) {
@@ -105,12 +137,11 @@ func (o *Output) Json(obj interface{}) {
 		o.Json(&obj)
 		break
 	case *map[string]interface{}:
-		data, err := json.MarshalIndent(obj, "", "  ")
+		data, err := prettyjson.Marshal(obj)
 		if err != nil {
 			panic(err)
 		}
-		fmt.Println("\nJson:")
-		color.Cyan("%s", data)
+		fmt.Print(string(data))
 		break
 	case []byte:
 		var newObj map[string]interface{}
@@ -121,12 +152,11 @@ func (o *Output) Json(obj interface{}) {
 		o.Json(newObj)
 		break
 	default:
-		data, err := json.MarshalIndent(obj, "", "  ")
+		data, err := prettyjson.Marshal(obj)
 		if err != nil {
 			panic(err)
 		}
-		fmt.Println("\nJson:")
-		color.Cyan("%s", data)
+		fmt.Println(string(data))
 		break
 
 	}
