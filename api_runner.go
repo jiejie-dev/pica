@@ -58,6 +58,16 @@ func (runner *ApiRunner) Run() error {
 			if err != nil {
 				return err
 			}
+		} else {
+			for index := 0; index < len(runner.ApiNames); index++ {
+				name := runner.ApiNames[index]
+				if item.Request.Name == name {
+					err = runner.RunSingle(item)
+					if err != nil {
+						return err
+					}
+				}
+			}
 		}
 	}
 	return nil
