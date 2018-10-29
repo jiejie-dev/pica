@@ -6,19 +6,21 @@ import (
 	"time"
 )
 
-type BuiltinFunction = func(interpreter *Interpreter, args []Value) Value
+type BuiltinFunction func(interpreter *Interpreter, args []Value) Value
 
 var (
-	FUNCTIONS = map[string]BuiltinFunction{
-		"echo":         Echo,
-		"echoln":       Echoln,
-		"now":          Now,
-		"base64encode": Base64Encode,
-		"base64decode": Base64Decode,
-		"assert":       Assert,
-		"len":          Len,
-	}
+	builtinFunctions = make(map[string]BuiltinFunction)
 )
+
+func init() {
+	builtinFunctions["echo"] = Echo
+	builtinFunctions["echoln"] = Echoln
+	builtinFunctions["now"] = Now
+	builtinFunctions["base64encode"] = Base64Encode
+	builtinFunctions["base64decode"] = Base64Decode
+	builtinFunctions["assert"] = Assert
+	builtinFunctions["len"] = Len
+}
 
 // ack check function arguments count valid
 func ack(args []Value, count int) {
