@@ -41,7 +41,7 @@ func CreateHttpRequest(req *ApiRequest, runner *ApiRunner) (httpReq *http.Reques
 		}
 		break
 	default:
-		if req.Method == "GET" {
+		if req.Method == "GET" || req.Method == "DELETE" {
 			targetUrl, err := getTargetUrl(req, runner)
 			if err != nil {
 				return nil, err
@@ -51,7 +51,7 @@ func CreateHttpRequest(req *ApiRequest, runner *ApiRunner) (httpReq *http.Reques
 				return nil, err
 			}
 		}
-		return nil, errors.New("unknow http")
+		return nil, errors.New("unknow http method")
 
 	}
 	httpReq.Header = req.Headers

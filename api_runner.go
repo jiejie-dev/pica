@@ -33,7 +33,7 @@ func NewApiRunner(filename string, apiNames []string, delay int) *ApiRunner {
 		Delay:    delay,
 
 		client: http.DefaultClient,
-		vm:     langs.NewInterpreterWithScope(langs.Scope{}),
+		vm:     langs.NewInterpreterWithScope(DefaultInitScope),
 		output: DefaultOutput,
 	}
 }

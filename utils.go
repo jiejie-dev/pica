@@ -11,6 +11,7 @@ import (
 
 	"regexp"
 
+	"github.com/fixate/go-qs"
 	"github.com/jeremaihloo/funny/langs"
 	"github.com/rakyll/statik/fs"
 	"github.com/shurcooL/github_flavored_markdown"
@@ -68,7 +69,7 @@ func CompileUrl(url string, vm *langs.Interpreter) (string, Query, error) {
 	return result, query, nil
 }
 
-func buildHtml(input []byte) string {
+func BuildHtml(input []byte) string {
 	output := github_flavored_markdown.Markdown(input)
 	statikFS, _ := fs.New()
 	tFile, err := statikFS.Open("/doc_template.html")
@@ -82,4 +83,32 @@ func buildHtml(input []byte) string {
 
 	rs := strings.Replace(string(template), "[body]", string(output), -1)
 	return rs
+}
+
+type Query map[string]interface{}
+
+func NewQuery(m map[string]interface{}) Query {
+	query := Query{}
+	for k, v := range m {
+		query[k] = v
+	}
+	return query
+}
+
+func ParseQuery(queryString string) (Query, error) {
+	r, err := qs.Unmarshal(queryString)
+	if err != nil {
+		return nil, err
+	}
+	return NewQuery(r), nil
+}
+
+func (query Query) String() (string, error) {
+	return qs.Marshal(query)
+}
+
+func PicaContextFromRunner(runner *ApiRunner) *PicaContext {
+	return &PicaContext{
+
+	}
 }

@@ -9,6 +9,10 @@ import (
 )
 
 var (
+	BuildAt = "unknow"
+	COMMIT = "unknow"
+	GOLANG = "unknow"
+
 	app   = kingpin.New("pica", "A command line for api test and doc generate.")
 	debug = app.Flag("debug", "Debug mode.").Bool()
 
@@ -18,7 +22,7 @@ var (
 	runAPINames       = cmdRun.Arg("apiNames", "Api names to excute").Strings()
 	runDelay          = cmdRun.Flag("delay", "Delay after one api request.").Int()
 	runOutput         = cmdRun.Flag("output", "Output file.").String()
-	runOutputTemplate = cmdRun.Flag("template", "Doc template.").Default("pica.doc.t").String()
+	runOutputTheme = cmdRun.Flag("theme", "Doc template.").Default("default").String()
 
 	// formats
 	cmdFormat      = app.Command("format", "Format api file.")
@@ -42,7 +46,7 @@ var (
 	email     = cmdConfig.Flag("email", "Email.").String()
 
 	// versions
-	cmdVersion = app.Command("version", "Version controls.")
+	cmdVersion = app.Command("vc", "Version controls.")
 
 	versionCommit = cmdVersion.Command("commit", "Commit a new version for api file and doc.")
 	commitMsg     = versionCommit.Arg("commit-msg", "Msg for this commit.").Required().String()
@@ -56,6 +60,8 @@ var (
 	versionDiff     = cmdVersion.Command("diff", "Diff between two commits")
 	diffCommitOlder = versionDiff.Arg("hash-older", "The hash of older one.").String()
 	diffCommitNewer = versionDiff.Arg("hash-newer", "The hash of newer one.").Default("HEAD").String()
+
+	cliVersionCommand = app.Command("version", "Command line interface version.")
 )
 
 func main() {
@@ -75,6 +81,10 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
+		if *runOutput!=""{
+			gen:=pica.NewMarkdownDocGenerator(apiRunner, *runOutputTheme, *runOutput)
+			gen.Get()
+		}
 		break
 	case cmdFormat.FullCommand():
 		pica.Format(*formatFileName, *formatSave, *formatPrint)
@@ -93,6 +103,11 @@ func main() {
 		break
 	case versionLog.FullCommand():
 		pica.VersionLog(*logFile)
+		break
+	case cliVersionCommand.FullCommand():
+		fmt.Printf("Commit:   %s\n", COMMIT)
+		fmt.Printf("Builds:   %s\n", BuildAt)
+		fmt.Printf("Golang:   %s\n", GOLANG)
 		break
 	default:
 		kingpin.Usage()
