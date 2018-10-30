@@ -17,6 +17,7 @@ var (
 		"base64decode": Base64Decode,
 		"assert":       Assert,
 		"len":          Len,
+		"typeof":       Typeof,
 	}
 )
 
@@ -34,6 +35,12 @@ func Echo(interpreter *Interpreter, args []Value) Value {
 		fmt.Print(item)
 	}
 	return nil
+}
+
+// Typeof builtin function echos one or every item in a array
+func Typeof(interpreter *Interpreter, args []Value) Value {
+	ack(args, 1)
+	return Typing(args[0])
 }
 
 // Echoln builtin function echos one or every item in a array

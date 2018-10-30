@@ -251,7 +251,7 @@ func (i *Interpreter) EvalExpression(expression Expression) Value {
 		case LTE:
 			return i.EvalLte(i.EvalExpression(item.Left), i.EvalExpression(item.Right))
 		case DOUBLE_EQ:
-			return i.EvalDoubleEq(i.EvalExpression(item.Left), i.EvalExpression(item.Right))
+			return i.EvalEqual(i.EvalExpression(item.Left), i.EvalExpression(item.Right))
 		default:
 			panic(P(fmt.Sprintf("only support [+] [-] [*] [/] [>] [>=] [==] [<=] [<] given [%s]", expression.(*BinaryExpression).Operator.Data), expression.Position()))
 		}
@@ -326,7 +326,6 @@ func (i *Interpreter) EvalField(item *Field) Value {
 	case *Field:
 		return i.EvalField(v)
 	default:
-		fmt.Printf("Typing: %s\n", Typing(v))
 		panic(fmt.Sprintf("unknow type %v", v))
 	}
 	return Value(nil)
@@ -446,6 +445,16 @@ func (i *Interpreter) EvalEqual(left, right Value) Value {
 		if r, ok := right.(int); ok {
 			return Value(l == r)
 		}
+		if r, ok := right.(float64); ok {
+			return Value(float64(l) == r)
+		}
+	case float64:
+		if r, ok := right.(float64); ok {
+			return Value(l == r)
+		}
+		if r, ok := right.(int); ok {
+			return Value(l == float64(r))
+		}
 	case *[]Value:
 		if r, ok := right.(*[]Value); ok {
 			if len(*l) != len(*r) {
@@ -474,6 +483,8 @@ func (i *Interpreter) EvalEqual(left, right Value) Value {
 			}
 			return Value(true)
 		}
+	default:
+		panic(fmt.Sprintf("unsupport type [%s]", Typing(l)))
 	}
 	return Value(false)
 }
@@ -529,6 +540,7 @@ func (i *Interpreter) EvalDoubleEq(left, right Value) Value {
 		if left == nil && right == nil {
 			return Value(true)
 		}
+
 	default:
 		return Value(left == right)
 	}

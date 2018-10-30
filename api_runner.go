@@ -54,6 +54,9 @@ func NewApiRunnerFromContent(content []byte) *ApiRunner {
 func (runner *ApiRunner) Run() error {
 	runner.vm.RegisterFunction("address", Address)
 	runner.vm.RegisterFunction("email", Email)
+	runner.vm.RegisterFunction("phone", Phone)
+	runner.vm.RegisterFunction("words", Words)
+	runner.vm.RegisterFunction("name", FullName)
 	err := runner.Parse()
 	if err != nil {
 		return err
