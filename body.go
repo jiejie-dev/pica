@@ -18,7 +18,7 @@ import (
 
 func CreateHttpRequest(req *ApiRequest, runner *ApiRunner) (httpReq *http.Request, err error) {
 	var bodyParams map[string]langs.Value
-	if req.Method != "GET" {
+	if req.Method != "GET" && req.Method != "DELETE" {
 		bodyParams = runner.vm.Lookup(strings.ToLower(req.Method)).(map[string]langs.Value)
 	}
 	switch req.Headers["Content-Type"][0] {
