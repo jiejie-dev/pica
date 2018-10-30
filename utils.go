@@ -35,9 +35,12 @@ func VmMap2HttpHeaders(vmMap map[string]langs.Value) http.Header {
 
 func CompileUrl(url string, vm *langs.Interpreter) (string, Query, error) {
 	queryValue := vm.LookupDefault("query", nil)
-	var query Query
+	query := Query{}
 	if queryValue != nil {
-		query = queryValue.(map[string]interface{})
+		valQuery := queryValue.(map[string]langs.Value)
+		for key, val := range valQuery {
+			query[key] = val
+		}
 	}
 
 	reg, err := regexp.Compile("<(.*?)>")
@@ -108,7 +111,5 @@ func (query Query) String() (string, error) {
 }
 
 func PicaContextFromRunner(runner *ApiRunner) *PicaContext {
-	return &PicaContext{
-
-	}
+	return &PicaContext{}
 }
