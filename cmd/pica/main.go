@@ -10,18 +10,18 @@ import (
 
 var (
 	BuildAt = "unknow"
-	COMMIT = "unknow"
-	GOLANG = "unknow"
+	COMMIT  = "unknow"
+	GOLANG  = "unknow"
 
 	app   = kingpin.New("pica", "A command line for api test and doc generate.")
 	debug = app.Flag("debug", "Debug mode.").Bool()
 
 	// runs
-	cmdRun            = app.Command("run", "Run api file.")
-	runFileName       = cmdRun.Arg("filename", "Api file.").Default("pica.fun").ExistingFile()
-	runAPINames       = cmdRun.Arg("apiNames", "Api names to excute").Strings()
-	runDelay          = cmdRun.Flag("delay", "Delay after one api request.").Int()
-	runOutput         = cmdRun.Flag("output", "Output file.").String()
+	cmdRun         = app.Command("run", "Run api file.")
+	runFileName    = cmdRun.Arg("filename", "Api file.").Default("pica.fun").ExistingFile()
+	runAPINames    = cmdRun.Arg("apiNames", "Api names to excute").Strings()
+	runDelay       = cmdRun.Flag("delay", "Delay after one api request.").Int()
+	runOutput      = cmdRun.Flag("output", "Output file.").String()
 	runOutputTheme = cmdRun.Flag("theme", "Doc template.").Default("default").String()
 
 	// formats
@@ -76,13 +76,13 @@ func main() {
 	}
 	switch kingpin.MustParse(c, err) {
 	case cmdRun.FullCommand():
-		apiRunner := pica.NewApiRunner(*runFileName, *runAPINames, *runDelay)
+		apiRunner := pica.NewApiRunnerFromFile(*runFileName, *runAPINames, *runDelay)
 		err := apiRunner.Run()
 		if err != nil {
 			panic(err)
 		}
-		if *runOutput!=""{
-			gen:=pica.NewMarkdownDocGenerator(apiRunner, *runOutputTheme, *runOutput)
+		if *runOutput != "" {
+			gen := pica.NewMarkdownDocGenerator(apiRunner, *runOutputTheme, *runOutput)
 			gen.Get()
 		}
 		break

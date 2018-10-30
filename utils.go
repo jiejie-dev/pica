@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"regexp"
@@ -55,6 +56,8 @@ func CompileUrl(url string, vm *langs.Interpreter) (string, Query, error) {
 			return string(val)
 		case string:
 			return val
+		case float64:
+			return strconv.FormatFloat(val, 'f', -1, 64)
 		default:
 			panic(fmt.Errorf("unsupport type [%s], only support [int][string]", langs.Typing(val)))
 		}

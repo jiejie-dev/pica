@@ -8,19 +8,17 @@ type Value interface {
 type Scope map[string]Value
 
 type Interpreter struct {
-	Vars []Scope
-	Fns  map[string]BuiltinFunction
+	Vars      []Scope
+	Functions map[string]BuiltinFunction
 }
 
 func NewInterpreterWithScope(vars Scope) *Interpreter {
-	i := new(Interpreter)
-	i.Vars = []Scope{
-		vars,
+	return &Interpreter{
+		Vars: []Scope{
+			vars,
+		},
+		Functions: FUNCTIONS,
 	}
-	i.Fns = make(map[string]BuiltinFunction)
-	i.Fns = builtinFunctions
-
-	return i
 }
 
 func (i *Interpreter) Debug() bool {
@@ -76,10 +74,10 @@ func (i *Interpreter) EvalBlock(block Block) (Value, bool) {
 }
 
 func (i *Interpreter) RegisterFunction(name string, fn BuiltinFunction) error {
-	if _, exists := i.Fns[name]; exists {
+	if _, exists := i.Functions[name]; exists {
 		return fmt.Errorf("function [%s] already exists", name)
 	}
-	i.Fns[name] = fn
+	i.Functions[name] = fn
 	return nil
 }
 
@@ -155,7 +153,7 @@ func (i *Interpreter) EvalFunctionCall(item *FunctionCall) (Value, bool) {
 	for _, p := range item.Parameters {
 		params = append(params, i.EvalExpression(p))
 	}
-	if fn, ok := i.Fns[item.Name]; ok {
+	if fn, ok := i.Functions[item.Name]; ok {
 		return fn(i, params), true
 	}
 	this := i.LookupDefault("this", nil)
@@ -319,8 +317,17 @@ func (i *Interpreter) EvalField(item *Field) Value {
 		i.PopScope()
 		return r
 	case *Variable:
-		iii := root.(map[string]Value)
-		return Value(iii[v.Name])
+		if val, ok := root.(map[string]Value); ok {
+			return Value(val[v.Name])
+		}
+		if val, ok := root.(map[string]interface{}); ok {
+			return Value(val[v.Name])
+		}
+	case *Field:
+		return i.EvalField(v)
+	default:
+		fmt.Printf("Typing: %s\n", Typing(v))
+		panic(fmt.Sprintf("unknow type %v", v))
 	}
 	return Value(nil)
 }

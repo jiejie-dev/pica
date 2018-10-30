@@ -54,7 +54,12 @@ func CreateHttpRequest(req *ApiRequest, runner *ApiRunner) (httpReq *http.Reques
 		return nil, errors.New("unknow http method")
 
 	}
-	httpReq.Header = req.Headers
+	headers := runner.vm.LookupDefault("headers", nil).(map[string]langs.Value)
+	if headers != nil {
+		httpReq.Header = VmMap2HttpHeaders(headers)
+	} else {
+		httpReq.Header = req.Headers
+	}
 	return
 }
 
@@ -132,5 +137,6 @@ func createJsonRequest(req *ApiRequest, runner *ApiRunner, bodyParams map[string
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(string(jsonContent))
 	return http.NewRequest(req.Method, targetUrl, bytes.NewBuffer(jsonContent))
 }

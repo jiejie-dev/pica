@@ -16,12 +16,13 @@ headers = {
 // GET /api/users api_get_users 获取用户列表
 headers.Authorization = 'slfjadslkfjlasdjfjas=='
 headers['Content-Type'] = 'application/json'
-assert(status==0)
+assert(status==200)
+echo(json.items)
 
 // POST /api/users api_create_user 新建用户
 post = {
-  // 用户名
-  name = 'test'
-  // 密码
-  age = 10
-}
+   // 用户名
+   name = 'test'
+   // 密码
+   age = 10
+ }

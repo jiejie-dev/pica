@@ -92,3 +92,7 @@
 [[constraint]]
   branch = "master"
   name = "github.com/hokaccha/go-prettyjson"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/icrowley/fake"

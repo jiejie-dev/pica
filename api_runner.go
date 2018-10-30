@@ -16,17 +16,18 @@ type ApiRunner struct {
 	ApiNames []string
 	Delay    int
 
-	vm     *langs.Interpreter
-	parser *langs.Parser
-	client *http.Client
-	output *Output
+	content []byte
+	vm      *langs.Interpreter
+	parser  *langs.Parser
+	client  *http.Client
+	output  *Output
 
 	ApiItems  []*ApiItem
 	Block     langs.Block
 	InitLines langs.Block
 }
 
-func NewApiRunner(filename string, apiNames []string, delay int) *ApiRunner {
+func NewApiRunnerFromFile(filename string, apiNames []string, delay int) *ApiRunner {
 	return &ApiRunner{
 		Filename: filename,
 		ApiNames: apiNames,
@@ -38,7 +39,21 @@ func NewApiRunner(filename string, apiNames []string, delay int) *ApiRunner {
 	}
 }
 
+func NewApiRunnerFromContent(content []byte) *ApiRunner {
+	return &ApiRunner{
+		Filename: "",
+		ApiNames: []string{},
+		Delay:    0,
+		content:  content,
+		client:   http.DefaultClient,
+		vm:       langs.NewInterpreterWithScope(DefaultInitScope),
+		output:   DefaultOutput,
+	}
+}
+
 func (runner *ApiRunner) Run() error {
+	runner.vm.RegisterFunction("address", Address)
+	runner.vm.RegisterFunction("email", Email)
 	err := runner.Parse()
 	if err != nil {
 		return err
@@ -74,11 +89,14 @@ func (runner *ApiRunner) Run() error {
 }
 
 func (runner *ApiRunner) Parse() error {
-	buffer, err := ioutil.ReadFile(runner.Filename)
-	if err != nil {
-		return fmt.Errorf("parse error %v", err.Error())
+	if runner.Filename != "" {
+		buffer, err := ioutil.ReadFile(runner.Filename)
+		if err != nil {
+			return fmt.Errorf("parse error %v", err.Error())
+		}
+		runner.content = buffer
 	}
-	runner.parser = langs.NewParser(buffer)
+	runner.parser = langs.NewParser(runner.content)
 	runner.Block = runner.parser.Parse()
 	return nil
 }
@@ -91,13 +109,15 @@ func (runner *ApiRunner) RunInitLines() {
 
 func (runner *ApiRunner) RunSingle(item *ApiItem) error {
 	// assign vars
-	headers := HttpHeaders2VmMap(item.Request.Headers)
+
 	runner.vm.Assign("url", item.Request.Url)
-	runner.vm.Assign("headers", headers)
 	// Eval init scope statements
 	for _, line := range item.Request.lines {
 		runner.vm.EvalStatement(line)
 	}
+
+	headers := runner.vm.Lookup("headers").(map[string]langs.Value)
+
 	// send ApiRequest by http client
 	res, err := runner.DoApiRequest(item.Request)
 	if err != nil {
@@ -108,11 +128,9 @@ func (runner *ApiRunner) RunSingle(item *ApiItem) error {
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(res.Body)
 
-	item.Response = &ApiResponse{
-		Headers: res.Header,
-		Status:  res.StatusCode,
-		Body:    buf.Bytes(),
-	}
+	item.Response.Headers = res.Header
+	item.Response.Status = res.StatusCode
+	item.Response.Body = buf.Bytes()
 
 	// collect http response to ApiRequest
 	headers = HttpHeaders2VmMap(item.Response.Headers)
@@ -122,10 +140,14 @@ func (runner *ApiRunner) RunSingle(item *ApiItem) error {
 
 	contentType := item.Response.Headers.Get("Content-Type")
 	if strings.HasPrefix(contentType, "application/json") {
-		var jResults map[string]langs.Value
-		err := json.Unmarshal(item.Response.Body, &jResults)
+		jResults := make(map[string]langs.Value)
+		jun := make(map[string]interface{})
+		err := json.Unmarshal(item.Response.Body, &jun)
 		if err != nil {
 			color.Red(fmt.Sprintf("json binding %s %s", err.Error(), item.Response.Body))
+		}
+		for k, v := range jun {
+			jResults[k] = langs.Value(v)
 		}
 		runner.vm.Assign("json", jResults)
 
@@ -208,8 +230,8 @@ func (runner *ApiRunner) ParseApiItems() error {
 					req.Description = texts[3]
 				}
 				apiItem := &ApiItem{
-					Request: &req,
-					Response:&ApiResponse{},
+					Request:  &req,
+					Response: &ApiResponse{},
 				}
 				runner.ApiItems = append(runner.ApiItems, apiItem)
 			}
