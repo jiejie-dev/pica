@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
+	"path/filepath"
 	"strings"
 	"text/template"
 
@@ -53,38 +55,46 @@ func TSafeJson(obj interface{}) string {
 	}
 }
 
-type DocGenerator struct {
-	ctx        *ApiContext
+type MarkdownDocGenerator struct {
+	runner     *ApiRunner
 	template   *template.Template
 	versionCtl *ApiVersionController
 }
 
-func NewDefaultGenerator(ctx *ApiContext) *DocGenerator {
-	return NewGenerator(ctx, DEFAULT_DOC_TEMPLATE)
-}
-
-func NewGenerator(ctx *ApiContext, tStr string) *DocGenerator {
+func NewMarkdownDocGenerator(runner *ApiRunner, theme, output string) *MarkdownDocGenerator {
+	if theme != "default" {
+		file, err := os.Open(filepath.Join(PROFILE_HOME, "doc_template.md"))
+		if err != nil {
+			panic(err)
+		}
+		bts, err := ioutil.ReadAll(file)
+		if err != nil {
+			panic(err)
+		}
+		DEFAULT_DOC_TEMPLATE = string(bts)
+	}
 	fnMap := template.FuncMap{
 		"json": TSafeJson,
 	}
-	t := template.Must(template.New("doc").Funcs(fnMap).Parse(tStr))
+	t := template.Must(template.New("doc").Funcs(fnMap).Parse(DEFAULT_DOC_TEMPLATE))
 
-	return &DocGenerator{
-		ctx:        ctx,
+	return &MarkdownDocGenerator{
+		runner:     runner,
 		template:   t,
-		versionCtl: NewApiVersionController(ctx.Pica.FileName),
+		versionCtl: NewApiVersionController(output),
 	}
 }
 
-func (g *DocGenerator) Get() ([]byte, error) {
+func (g *MarkdownDocGenerator) Get() ([]byte, error) {
 	note, err := g.versionCtl.Notes()
 	if err != nil {
 		panic(err)
 		return nil, err
 	}
-	g.ctx.VersionNotes = note
 	buffer := new(bytes.Buffer)
-	err = g.template.Execute(buffer, g.ctx)
+	ctx := PicaContextFromRunner(g.runner)
+	ctx.VersionNotes = note
+	err = g.template.Execute(buffer, ctx)
 	if err != nil {
 		panic(err)
 		return nil, fmt.Errorf("generate doc %s", err.Error())

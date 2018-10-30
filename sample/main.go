@@ -22,5 +22,17 @@ func main() {
 		users = append(users, newUser)
 		c.JSON(200, newUser)
 	})
+	r.DELETE(("/api/users"), func(c *gin.Context) {
+		name := c.Param("name")
+		c.JSON(200, gin.H{
+			"name": name,
+		})
+	})
+	r.PUT("/api/users", func(c *gin.Context) {
+		name := c.ContentType()
+		c.JSON(200, gin.H{
+			"Content-Type": name,
+		})
+	})
 	r.Run() // listen and serve on 0.0.0.0:8080
 }

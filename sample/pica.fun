@@ -13,11 +13,12 @@ headers = {
 
 // Apis format: [method] [path] [description]
 
-// GET /api/users 获取用户列表
-headers.Authorization = 'slfjaslkfjlasdjfjas=='
+// GET /api/users api_get_users 获取用户列表
+headers.Authorization = 'slfjadslkfjlasdjfjas=='
 headers['Content-Type'] = 'application/json'
+assert(status==0)
 
-// POST /api/users 新建用户
+// POST /api/users api_create_user 新建用户
 post = {
   // 用户名
   name = 'test'

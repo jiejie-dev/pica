@@ -59,6 +59,10 @@
 
 [[constraint]]
   branch = "master"
+  name = "github.com/pkg/errors"
+
+[[constraint]]
+  branch = "master"
   name = "github.com/rakyll/statik"
 
 [[constraint]]
@@ -84,3 +88,7 @@
 [prune]
   go-tests = true
   unused-packages = true
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/hokaccha/go-prettyjson"

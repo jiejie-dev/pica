@@ -1,6 +1,7 @@
 package pica
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -19,7 +20,7 @@ import (
 	_ "github.com/jeremaihloo/pica/statik"
 	"github.com/rakyll/statik/fs"
 	"github.com/shurcooL/github_flavored_markdown"
-	survey "gopkg.in/AlecAivazis/survey.v1"
+	"gopkg.in/AlecAivazis/survey.v1"
 )
 
 type InitInfo struct {
@@ -114,11 +115,6 @@ func Init(filename, templateName string) error {
 	return nil
 }
 
-func Run(filename string, apiNames []string, delay int, outputFile, outputTemplate string) error {
-	pica := NewPica(filename, apiNames, delay, outputFile, outputTemplate)
-	return pica.Run()
-}
-
 func Format(filename string, save, print bool) (string, error) {
 	fw := strings.Builder{}
 	output := func(text string) {
@@ -167,7 +163,7 @@ func Serve(filename string, port int) error {
 	}
 	output := github_flavored_markdown.Markdown(input)
 	r := gin.Default()
-	template := buildHtml(input)
+	template := BuildHtml(input)
 
 	r.GET("/", func(c *gin.Context) {
 		rs := strings.Replace(template, "[body]", string(output), -1)
@@ -223,6 +219,33 @@ func Serve(filename string, port int) error {
 
 	/* ... do stuff ... */
 	watcher.Close()
+	return nil
+}
+
+func GenDocument(apiRunner *ApiRunner, output string) error {
+	if !strings.HasSuffix(output, ".md") && !strings.HasSuffix(output, ".html") {
+		return errors.New("only .md and .html supported")
+	}
+	data, err := ioutil.ReadFile("")
+	if err != nil {
+		data = []byte(DEFAULT_DOC_TEMPLATE)
+	}
+	generator := NewMarkdownDocGenerator(apiRunner, string(data), output)
+	results, err := generator.Get()
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%s\n", results)
+	// if _, err := os.Stat(p.Output); err == nil {
+	if strings.HasSuffix(output, ".html") {
+		results = []byte(BuildHtml(results))
+	}
+	err = ioutil.WriteFile(output, results, os.ModePerm)
+	if err != nil {
+		return err
+	}
+	// }
+	// return errors.New("file already exists")
 	return nil
 }
 
