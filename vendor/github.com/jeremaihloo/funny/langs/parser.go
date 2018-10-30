@@ -5,17 +5,20 @@ import (
 	"strconv"
 )
 
+// Parser the parser
 type Parser struct {
 	Lexer   *Lexer
 	Current Token
 }
 
+// NewParser create a new parser
 func NewParser(data []byte) *Parser {
 	return &Parser{
 		Lexer: NewLexer(data),
 	}
 }
 
+// Consume get next token
 func (p *Parser) Consume(kind string) Token {
 	old := p.Current
 	if kind != "" && old.Kind != kind {
@@ -25,6 +28,7 @@ func (p *Parser) Consume(kind string) Token {
 	return old
 }
 
+// Parse parse to statements
 func (p *Parser) Parse() Block {
 	block := Block{}
 	p.Consume("")
@@ -41,6 +45,7 @@ func (p *Parser) Parse() Block {
 	return block
 }
 
+// ReadStatement get next statement
 func (p *Parser) ReadStatement() Statement {
 	current := p.Consume("")
 	switch current.Kind {
@@ -142,6 +147,7 @@ func (p *Parser) ReadStatement() Statement {
 	return nil
 }
 
+// ReadIF get next if statement
 func (p *Parser) ReadIF() Statement {
 	var item IFStatement
 
@@ -173,6 +179,7 @@ func (p *Parser) ReadIF() Statement {
 	return &item
 }
 
+// ReadFOR read for statement
 func (p *Parser) ReadFOR() Statement {
 	var item FORStatement
 	if p.Current.Kind == NAME {
@@ -221,6 +228,7 @@ func (p *Parser) ReadFOR() Statement {
 	return &item
 }
 
+// ReadFunction read function statement
 func (p *Parser) ReadFunction(name string) Statement {
 	var fn Function
 	fn.Name = name
@@ -257,6 +265,7 @@ func (p *Parser) ReadFunction(name string) Statement {
 	}
 }
 
+// ReadList read list expression
 func (p *Parser) ReadList() Expression {
 	l := []Expression{}
 	for {
@@ -285,6 +294,7 @@ func (p *Parser) ReadList() Expression {
 	}
 }
 
+// ReadExpression read next expression
 func (p *Parser) ReadExpression() Expression {
 	current := p.Consume("")
 	switch current.Kind {
@@ -454,6 +464,7 @@ func (p *Parser) ReadExpression() Expression {
 	panic(P(fmt.Sprintf("Unknow Expression Data: %s", current.Data), current.Position))
 }
 
+// ReadDict read dict expression
 func (p *Parser) ReadDict() Expression {
 	var b Block
 	for {
@@ -467,6 +478,7 @@ func (p *Parser) ReadDict() Expression {
 	return &b
 }
 
+// ReadField read field expression
 func (p *Parser) ReadField() Expression {
 	name := p.Consume(NAME)
 	if p.Current.Kind == DOT {

@@ -2,16 +2,20 @@ package langs
 
 import "fmt"
 
+// Value one value of some like variable
 type Value interface {
 }
 
+// Scope stores variables
 type Scope map[string]Value
 
+// Interpreter the virtual machine of funny code
 type Interpreter struct {
 	Vars      []Scope
 	Functions map[string]BuiltinFunction
 }
 
+// NewInterpreterWithScope create a new interpreter
 func NewInterpreterWithScope(vars Scope) *Interpreter {
 	return &Interpreter{
 		Vars: []Scope{
@@ -21,6 +25,7 @@ func NewInterpreterWithScope(vars Scope) *Interpreter {
 	}
 }
 
+// Debug get debug value
 func (i *Interpreter) Debug() bool {
 	v := i.LookupDefault("debug", Value(false))
 	if v == nil {
@@ -32,6 +37,7 @@ func (i *Interpreter) Debug() bool {
 	return false
 }
 
+// Run the part of the code
 func (i *Interpreter) Run(v interface{}) (Value, bool) {
 	if !i.Debug() {
 		// defer func() {
@@ -60,9 +66,9 @@ func (i *Interpreter) Run(v interface{}) (Value, bool) {
 	default:
 		panic(fmt.Sprintf("unknow type of running value: [%v]", v))
 	}
-	return Value(nil), false
 }
 
+// EvalBlock eval a block
 func (i *Interpreter) EvalBlock(block Block) (Value, bool) {
 	for _, item := range block {
 		r, has := i.EvalStatement(item)
@@ -73,6 +79,7 @@ func (i *Interpreter) EvalBlock(block Block) (Value, bool) {
 	return Value(nil), false
 }
 
+// RegisterFunction register a builtin or customer function
 func (i *Interpreter) RegisterFunction(name string, fn BuiltinFunction) error {
 	if _, exists := i.Functions[name]; exists {
 		return fmt.Errorf("function [%s] already exists", name)
@@ -81,6 +88,7 @@ func (i *Interpreter) RegisterFunction(name string, fn BuiltinFunction) error {
 	return nil
 }
 
+// EvalIfStatement eval if statement
 func (i *Interpreter) EvalIfStatement(item IFStatement) (Value, bool) {
 	exp := i.EvalExpression(item.Condition)
 	if exp, ok := exp.(bool); ok {
@@ -101,10 +109,12 @@ func (i *Interpreter) EvalIfStatement(item IFStatement) (Value, bool) {
 	return Value(nil), false
 }
 
+// EvalForStatement eval for statement
 func (i *Interpreter) EvalForStatement(item FORStatement) (Value, bool) {
 	panic("NOT IMPLEMENT")
 }
 
+// EvalStatement eval statement
 func (i *Interpreter) EvalStatement(item Statement) (Value, bool) {
 	switch item := item.(type) {
 	case *Assign:
@@ -148,6 +158,7 @@ func (i *Interpreter) EvalStatement(item Statement) (Value, bool) {
 	return Value(nil), false
 }
 
+// EvalFunctionCall eval function call like test(a, b)
 func (i *Interpreter) EvalFunctionCall(item *FunctionCall) (Value, bool) {
 	var params []Value
 	for _, p := range item.Parameters {
@@ -175,6 +186,7 @@ func (i *Interpreter) EvalFunctionCall(item *FunctionCall) (Value, bool) {
 	}
 }
 
+// EvalFunction eval function
 func (i *Interpreter) EvalFunction(item Function, params []Value) (Value, bool) {
 	scope := Scope{}
 	i.PushScope(scope)
@@ -186,6 +198,7 @@ func (i *Interpreter) EvalFunction(item Function, params []Value) (Value, bool) 
 	return r, has
 }
 
+// AssignField assign one field value
 func (i *Interpreter) AssignField(field *Field, val Value) {
 	scope := make(map[string]Value)
 
@@ -197,10 +210,12 @@ func (i *Interpreter) AssignField(field *Field, val Value) {
 	i.Assign(field.Variable.Name, Value(scope))
 }
 
+// Assign assign one variable
 func (i *Interpreter) Assign(name string, val Value) {
 	i.Vars[len(i.Vars)-1][name] = val
 }
 
+// LookupDefault find one variable named name and get value, if not found, return default
 func (i *Interpreter) LookupDefault(name string, defaultVal Value) Value {
 	for index := len(i.Vars) - 1; index >= 0; index-- {
 		item := i.Vars[index]
@@ -213,6 +228,7 @@ func (i *Interpreter) LookupDefault(name string, defaultVal Value) Value {
 	return defaultVal
 }
 
+// Lookup find one variable named name and get value
 func (i *Interpreter) Lookup(name string) Value {
 	r := i.LookupDefault(name, Value(nil))
 	if r != nil {
@@ -221,14 +237,17 @@ func (i *Interpreter) Lookup(name string) Value {
 	panic(fmt.Sprintf("variable [%s] not found", name))
 }
 
+// PopScope pop current scope
 func (i *Interpreter) PopScope() {
 	i.Vars = i.Vars[:len(i.Vars)-1]
 }
 
+// PushScope push scope into current
 func (i *Interpreter) PushScope(scope Scope) {
 	i.Vars = append(i.Vars, scope)
 }
 
+// EvalExpression eval part that is expression
 func (i *Interpreter) EvalExpression(expression Expression) Value {
 	switch item := expression.(type) {
 	case *BinaryExpression:
@@ -304,6 +323,7 @@ func (i *Interpreter) EvalExpression(expression Expression) Value {
 	panic(P(fmt.Sprintf("eval expression error: [%s]", expression.String()), expression.Position()))
 }
 
+// EvalField person.age
 func (i *Interpreter) EvalField(item *Field) Value {
 	root := i.Lookup(item.Variable.Name)
 	switch v := item.Value.(type) {
@@ -331,6 +351,7 @@ func (i *Interpreter) EvalField(item *Field) Value {
 	return Value(nil)
 }
 
+// EvalPlus +
 func (i *Interpreter) EvalPlus(left, right Value) Value {
 	switch left := left.(type) {
 	case string:
@@ -385,6 +406,7 @@ func (i *Interpreter) EvalPlus(left, right Value) Value {
 	panic(fmt.Sprintf("eval plus only support types: [int, list, dict] given [%s]", Typing(left)))
 }
 
+// EvalMinus -
 func (i *Interpreter) EvalMinus(left, right Value) Value {
 	switch left := left.(type) {
 	case int:
@@ -419,6 +441,7 @@ func (i *Interpreter) EvalMinus(left, right Value) Value {
 	panic("eval plus only support types: [int, list, dict]")
 }
 
+// EvalTimes *
 func (i *Interpreter) EvalTimes(left, right Value) Value {
 	if l, ok := left.(int); ok {
 		if r, o := right.(int); o {
@@ -428,6 +451,7 @@ func (i *Interpreter) EvalTimes(left, right Value) Value {
 	panic("eval plus times only support types: [int]")
 }
 
+// EvalDevide /
 func (i *Interpreter) EvalDevide(left, right Value) Value {
 	if l, o := left.(int); o {
 		if r, k := right.(int); k {
@@ -437,6 +461,7 @@ func (i *Interpreter) EvalDevide(left, right Value) Value {
 	panic("eval plus devide only support types: [int]")
 }
 
+// EvalEqual ==
 func (i *Interpreter) EvalEqual(left, right Value) Value {
 	switch l := left.(type) {
 	case nil:
@@ -489,6 +514,7 @@ func (i *Interpreter) EvalEqual(left, right Value) Value {
 	return Value(false)
 }
 
+// EvalGt >
 func (i *Interpreter) EvalGt(left, right Value) Value {
 	switch left := left.(type) {
 	case int:
@@ -499,6 +525,7 @@ func (i *Interpreter) EvalGt(left, right Value) Value {
 	panic("eval gt only support: [int]")
 }
 
+// EvalGte >=
 func (i *Interpreter) EvalGte(left, right Value) Value {
 	switch left := left.(type) {
 	case int:
@@ -509,6 +536,7 @@ func (i *Interpreter) EvalGte(left, right Value) Value {
 	panic("eval lte only support: [int]")
 }
 
+// EvalLt <
 func (i *Interpreter) EvalLt(left, right Value) Value {
 	switch left := left.(type) {
 	case int:
@@ -519,6 +547,7 @@ func (i *Interpreter) EvalLt(left, right Value) Value {
 	panic("eval lt only support: [int]")
 }
 
+// EvalLte <=
 func (i *Interpreter) EvalLte(left, right Value) Value {
 	switch left := left.(type) {
 	case int:
@@ -529,6 +558,7 @@ func (i *Interpreter) EvalLte(left, right Value) Value {
 	panic("eval lte only support: [int]")
 }
 
+// EvalDoubleEq ==
 func (i *Interpreter) EvalDoubleEq(left, right Value) Value {
 	return left == right
 	switch left := left.(type) {
@@ -540,7 +570,6 @@ func (i *Interpreter) EvalDoubleEq(left, right Value) Value {
 		if left == nil && right == nil {
 			return Value(true)
 		}
-
 	default:
 		return Value(left == right)
 	}
