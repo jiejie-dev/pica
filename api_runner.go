@@ -195,6 +195,7 @@ func (runner *ApiRunner) ParseApiItems() error {
 			}
 			if flag {
 				inited = true
+				asserting = false
 				req := ApiRequest{
 					Method:  texts[0],
 					Url:     texts[1],
