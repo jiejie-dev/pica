@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/jeremaihloo/funny/langs"
 	"os"
+
+	"github.com/jeremaihloo/funny/langs"
 
 	"github.com/alecthomas/kingpin"
 	"github.com/jeremaihloo/pica"
@@ -67,6 +68,8 @@ var (
 	combineCode   = app.Command("combine", "Combine code that imported.")
 	combineFile   = combineCode.Arg("filename", "File to be combined.").Required().String()
 	combineOutput = combineCode.Arg("output", "Output file name for combined code.").String()
+	listCommand   = app.Command("list", "List all api names.")
+	listAPIFile   = listCommand.Arg("apifile", "Api file to list.").Default("pica.fun").String()
 )
 
 func main() {
@@ -120,6 +123,19 @@ func main() {
 			panic(err)
 		}
 		fmt.Println(code)
+	case listCommand.FullCommand():
+		apiRunner := pica.NewApiRunnerFromFile(*listAPIFile, *runAPINames, *runDelay)
+		err := apiRunner.Parse()
+		if err != nil {
+			panic(err)
+		}
+		err = apiRunner.ParseApiItems()
+		if err != nil {
+			panic(err)
+		}
+		for _, item := range apiRunner.ApiItems {
+			fmt.Printf("%s %s\n", item.Request.Name, item.Request.Description)
+		}
 		break
 	default:
 		kingpin.Usage()
