@@ -5,15 +5,18 @@ import (
 	"unicode/utf8"
 )
 
+// Position of one token
 type Position struct {
 	Line int
 	Col  int
 }
 
+// String of one token
 func (p *Position) String() string {
 	return fmt.Sprintf("[Position] Line: %4d, Col: %4d", p.Line, p.Col)
 }
 
+// Token a part of code
 type Token struct {
 	Position Position
 	Kind     string
@@ -28,6 +31,7 @@ func (t *Token) String() string {
 	return fmt.Sprintf("[Token] Kind: %6s, %6s, Data: %6s", t.Kind, t.Position.String(), "["+dt+"]")
 }
 
+// Lexer the lexer
 type Lexer struct {
 	Offset     int
 	CurrentPos Position
@@ -38,6 +42,7 @@ type Lexer struct {
 	Elements   []Token
 }
 
+// NewLexer create a new lexer
 func NewLexer(data []byte) *Lexer {
 	return &Lexer{
 		Data: data,
@@ -48,6 +53,7 @@ func NewLexer(data []byte) *Lexer {
 	}
 }
 
+// LA next char
 func (l *Lexer) LA(n int) rune {
 	offset := l.Offset
 	for {
@@ -63,9 +69,9 @@ func (l *Lexer) LA(n int) rune {
 			return ch
 		}
 	}
-	return -1
 }
 
+// Consume next char and move position
 func (l *Lexer) Consume(n int) rune {
 	for {
 		ch, size := utf8.DecodeRune(l.Data[l.Offset:])
@@ -81,9 +87,9 @@ func (l *Lexer) Consume(n int) rune {
 			return ch
 		}
 	}
-	return -1
 }
 
+// CreateToken create a new token and move position
 func (l *Lexer) CreateToken(kind string) Token {
 	st := l.Data[l.SaveOffset:l.Offset]
 	token := Token{
@@ -98,6 +104,7 @@ func (l *Lexer) CreateToken(kind string) Token {
 	return token
 }
 
+// NewLine move to next line
 func (l *Lexer) NewLine() Token {
 	token := l.CreateToken(NEW_LINE)
 	l.CurrentPos.Col = 1
@@ -113,6 +120,7 @@ func isNameStart(ch rune) bool {
 	return ch == '_' || (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')
 }
 
+// ReadInt get a into from current position
 func (l *Lexer) ReadInt() Token {
 	for {
 		ch := l.LA(1)
@@ -121,17 +129,17 @@ func (l *Lexer) ReadInt() Token {
 			l.Consume(1)
 		default:
 			return l.CreateToken(INT)
-			break
 		}
 	}
-	return l.CreateToken(EOF)
 }
 
+// Reset reset the position
 func (l *Lexer) Reset() {
 	l.SaveOffset = l.Offset
 	l.SavePos = l.CurrentPos
 }
 
+// Next get next token
 func (l *Lexer) Next() Token {
 	for {
 		l.Reset()
@@ -241,6 +249,7 @@ func (l *Lexer) Next() Token {
 	}
 }
 
+// ReadString read next string token
 func (l *Lexer) ReadString() Token {
 	// TODO: Fix (using state machine)
 	l.Consume(1)
@@ -258,9 +267,9 @@ func (l *Lexer) ReadString() Token {
 			break
 		}
 	}
-	return l.CreateToken(EOF)
 }
 
+// ReadComments read comments
 func (l *Lexer) ReadComments() Token {
 	l.Reset()
 	for {
@@ -277,5 +286,4 @@ func (l *Lexer) ReadComments() Token {
 			break
 		}
 	}
-	return l.CreateToken(EOF)
 }

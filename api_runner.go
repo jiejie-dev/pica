@@ -93,11 +93,11 @@ func (runner *ApiRunner) Run() error {
 
 func (runner *ApiRunner) Parse() error {
 	if runner.Filename != "" {
-		buffer, err := ioutil.ReadFile(runner.Filename)
+		buffer, err := langs.CombinedCode(runner.Filename)
 		if err != nil {
 			return fmt.Errorf("parse error %v", err.Error())
 		}
-		runner.content = buffer
+		runner.content = []byte(buffer)
 	}
 	runner.parser = langs.NewParser(runner.content)
 	runner.Block = runner.parser.Parse()

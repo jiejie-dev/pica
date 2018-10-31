@@ -146,11 +146,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:18cc6799f6cdec2d37047c1fc69d5df16fd26d7d610774443cc7ec5e616e35b6"
+  digest = "1:40c4d76770c6046d20fe77b1c17e94ef50c049d12121a2116dc2fab51f3c0f66"
   name = "github.com/jeremaihloo/funny"
   packages = ["langs"]
   pruneopts = "UT"
-  revision = "64f9285b9f32fb5e55839bb31ec3d94dc6f8d522"
+  revision = "c3f757e8aba22230aeec379befdf93e954007244"
 
 [[projects]]
   digest = "1:be97e109f627d3ba8edfef50c9c74f0d0c17cbe3a2e924a8985e4804a894f282"
@@ -254,6 +254,14 @@
   packages = ["."]
   pruneopts = "UT"
   revision = "5f33e7b7878355cd2b7e6b8eefc48a5472c69f70"
+
+[[projects]]
+  digest = "1:274f67cb6fed9588ea2521ecdac05a6d62a8c51c074c1fccc6a49a40ba80e925"
+  name = "github.com/satori/go.uuid"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
+  version = "v1.2.0"
 
 [[projects]]
   branch = "master"

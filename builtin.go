@@ -14,7 +14,7 @@ func Address(interpreter *langs.Interpreter, args []langs.Value) langs.Value {
 }
 
 func FullName(interpreter *langs.Interpreter, args []langs.Value) langs.Value {
-	return langs.Value(fake.FullName())
+	return langs.Value(fake.UserName())
 }
 
 func Phone(interpreter *langs.Interpreter, args []langs.Value) langs.Value {

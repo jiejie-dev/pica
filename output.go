@@ -108,7 +108,7 @@ func (o *Output) Headers(headers http.Header) {
 }
 
 func (o *Output) RequestBody(req *http.Request, runner *ApiRunner) error {
-	if req.Method != "GET" {
+	if req.Method != "GET" && req.Method != "DELETE" {
 		body := runner.vm.Lookup(strings.ToLower(req.Method))
 		data, err := prettyjson.Marshal(body)
 		if err != nil {

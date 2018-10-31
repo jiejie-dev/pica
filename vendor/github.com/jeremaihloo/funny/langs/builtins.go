@@ -1,14 +1,20 @@
 package langs
 
 import (
+	"crypto/md5"
 	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 	"time"
+
+	uuid "github.com/satori/go.uuid"
 )
 
+// BuiltinFunction function handler
 type BuiltinFunction func(interpreter *Interpreter, args []Value) Value
 
 var (
+	// FUNCTIONS all builtin functions
 	FUNCTIONS = map[string]BuiltinFunction{
 		"echo":         Echo,
 		"echoln":       Echoln,
@@ -17,14 +23,24 @@ var (
 		"base64decode": Base64Decode,
 		"assert":       Assert,
 		"len":          Len,
+		"hash":         Md5,
+		"max":          Max,
 		"typeof":       Typeof,
+		"uuid":         UUID,
 	}
 )
 
-// ack check function arguments count valid
-func ack(args []Value, count int) {
+// ackEq check function arguments count valid
+func ackEq(args []Value, count int) {
 	if len(args) != count {
 		panic(fmt.Sprintf("%d arguments required but got %d", count, len(args)))
+	}
+}
+
+// ackGt check function arguments count valid
+func ackGt(args []Value, count int) {
+	if len(args) <= count {
+		panic(fmt.Sprintf("greater than %d arguments required but got %d", count, len(args)))
 	}
 }
 
@@ -35,12 +51,6 @@ func Echo(interpreter *Interpreter, args []Value) Value {
 		fmt.Print(item)
 	}
 	return nil
-}
-
-// Typeof builtin function echos one or every item in a array
-func Typeof(interpreter *Interpreter, args []Value) Value {
-	ack(args, 1)
-	return Typing(args[0])
 }
 
 // Echoln builtin function echos one or every item in a array
@@ -96,7 +106,7 @@ func Base64Decode(interpreter *Interpreter, args []Value) Value {
 
 // Assert return the value that has been given
 func Assert(interpreter *Interpreter, args []Value) Value {
-	ack(args, 1)
+	ackEq(args, 1)
 	if val, ok := args[0].(bool); ok {
 		if val {
 			return Value(args[0])
@@ -108,9 +118,71 @@ func Assert(interpreter *Interpreter, args []Value) Value {
 
 // Len return then length of the given list
 func Len(interpreter *Interpreter, args []Value) Value {
-	ack(args, 1)
+	ackEq(args, 1)
 	if val, ok := args[0].(*List); ok {
 		return Value(len(val.Values))
 	}
 	panic("type error, only support [list]")
+}
+
+// Md5 return then length of the given list
+func Md5(interpreter *Interpreter, args []Value) Value {
+	ackEq(args, 1)
+	switch v := args[0].(type) {
+	case string:
+		md5Ctx := md5.New()
+		md5Ctx.Write([]byte(v))
+		return hex.EncodeToString(md5Ctx.Sum(nil))
+	default:
+		break
+	}
+	panic("type error, only support [string]")
+}
+
+// Max return then length of the given list
+func Max(interpreter *Interpreter, args []Value) Value {
+	ackGt(args, 1)
+	switch v := args[0].(type) {
+	case int:
+		flag := v
+		for _, item := range args[1:] {
+			if val, ok := item.(int); ok {
+				if val > flag {
+					flag = val
+				}
+			}
+			break
+		}
+		return Value(flag)
+	case *List:
+		flag := interpreter.EvalExpression(v.Values[0])
+		if flagA, ok := flag.(int); ok {
+			for _, item := range v.Values {
+				val := interpreter.EvalExpression(item)
+				if val, ok := val.(int); ok {
+					if val > flagA {
+						flagA = val
+					}
+				}
+				break
+			}
+			return Value(flagA)
+		}
+	default:
+		break
+	}
+	panic("type error, only support [int]")
+}
+
+// Typeof builtin function echos one or every item in a array
+func Typeof(interpreter *Interpreter, args []Value) Value {
+	ackEq(args, 1)
+	return Typing(args[0])
+}
+
+// UUID builtin function return a uuid string value
+func UUID(interpreter *Interpreter, args []Value) Value {
+	ackEq(args, 0)
+	u1 := uuid.NewV4()
+	return Value(fmt.Sprintf("%s", u1))
 }

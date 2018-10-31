@@ -14,7 +14,7 @@ func collectBlock(block Block) []string {
 		}
 		switch item.(type) {
 		case *NewLine:
-			flag += 1
+			flag++
 			if flag < 1 {
 				continue
 			}
@@ -37,15 +37,18 @@ func intent(s string) string {
 	return strings.Join(ss, "\n")
 }
 
+// Statement abstract
 type Statement interface {
 	Position() Position
 	String() string
 }
 
+// NewLine \n
 type NewLine struct {
 	pos Position
 }
 
+// Position of NewLine
 func (n *NewLine) Position() Position {
 	return n.pos
 }
@@ -54,7 +57,7 @@ func (n *NewLine) String() string {
 	return "\n"
 }
 
-// Variable
+// Variable means var
 type Variable struct {
 	pos  Position
 	Name string
@@ -67,16 +70,18 @@ func (v *Variable) String() string {
 	return fmt.Sprintf("%s", v.Name)
 }
 
+// Position of Variable
 func (v *Variable) Position() Position {
 	return v.pos
 }
 
-// Literal
+// Literal like 1
 type Literal struct {
 	pos   Position
 	Value interface{}
 }
 
+// Position of Literal
 func (l *Literal) Position() Position {
 	return l.pos
 }
@@ -88,13 +93,13 @@ func (l *Literal) String() string {
 	return fmt.Sprintf("%v", l.Value)
 }
 
-// Expression
+// Expression abstract
 type Expression interface {
 	Position() Position
 	String() string
 }
 
-// BinaryExpression
+// BinaryExpression like a > 10
 type BinaryExpression struct {
 	pos      Position
 	Left     Expression
@@ -102,6 +107,7 @@ type BinaryExpression struct {
 	Right    Expression
 }
 
+// Position of BinaryExpression
 func (b *BinaryExpression) Position() Position {
 	return b.pos
 }
@@ -110,13 +116,14 @@ func (b *BinaryExpression) String() string {
 	return fmt.Sprintf("%s %s %s", b.Left.String(), b.Operator.Data, b.Right.String())
 }
 
-// Assign
+// Assign like a = 2
 type Assign struct {
 	pos    Position
 	Target Expression
 	Value  Expression
 }
 
+// Position of Assign
 func (a *Assign) Position() Position {
 	return a.pos
 }
@@ -131,12 +138,13 @@ func (a *Assign) String() string {
 	return fmt.Sprintf("%s = %s", a.Target.String(), a.Value.String())
 }
 
-// List
+// List like [1, 2, 3]
 type List struct {
 	pos    Position
 	Values []Expression
 }
 
+// Position of List
 func (l *List) Position() Position {
 	return l.pos
 }
@@ -155,12 +163,14 @@ func (l *List) String() string {
 	return fmt.Sprintf("%s", strings.Join(s, ", "))
 }
 
+// ListAccess like a[0]
 type ListAccess struct {
 	pos   Position
 	Index int
 	List  Variable
 }
 
+// Position of ListAccess
 func (l *ListAccess) Position() Position {
 	return l.pos
 }
@@ -169,9 +179,10 @@ func (l *ListAccess) String() string {
 	return fmt.Sprintf("%s[%d]", l.List.String(), l.Index)
 }
 
-// Block
+// Block contains many statments
 type Block []Statement
 
+// Position of Block
 func (b *Block) Position() Position {
 	return Position{}
 }
@@ -184,7 +195,7 @@ func (b *Block) String() string {
 	return strings.Join(s, "")
 }
 
-// Function
+// Function like test(a, b){}
 type Function struct {
 	pos        Position
 	Name       string
@@ -192,6 +203,7 @@ type Function struct {
 	Body       Block
 }
 
+// Position of Function
 func (f *Function) Position() Position {
 	return f.pos
 }
@@ -205,12 +217,14 @@ func (f *Function) String() string {
 	return fmt.Sprintf("%s(%s) {%s}", f.Name, strings.Join(args, ", "), s)
 }
 
+// FunctionCall like test(a, b)
 type FunctionCall struct {
 	pos        Position
 	Name       string
 	Parameters []Expression
 }
 
+// Position of FunctionCall
 func (c *FunctionCall) Position() Position {
 	return c.pos
 }
@@ -232,7 +246,7 @@ func block(b Block) string {
 	return strings.Join(ss, "")
 }
 
-// Program
+// Program means the whole application
 type Program struct {
 	Statements Block
 }
@@ -241,7 +255,7 @@ func (p *Program) String() string {
 	return p.Statements.String()
 }
 
-// IFStatement
+// IFStatement like if
 type IFStatement struct {
 	pos       Position
 	Condition Expression
@@ -249,6 +263,7 @@ type IFStatement struct {
 	Else      Block
 }
 
+// Position of IFStatement
 func (i *IFStatement) Position() Position {
 	return i.pos
 }
@@ -261,6 +276,7 @@ func (i *IFStatement) String() string {
 	}
 }
 
+// FORStatement like for
 type FORStatement struct {
 	pos      Position
 	Iterable IterableExpression
@@ -270,6 +286,7 @@ type FORStatement struct {
 	CurrentItem  Expression
 }
 
+// Position of FORStatement
 func (f *FORStatement) Position() Position {
 	return f.pos
 }
@@ -282,7 +299,7 @@ func (f *FORStatement) String() string {
 		intent(f.Block.String()))
 }
 
-// IterableExpression
+// IterableExpression like for in
 type IterableExpression struct {
 	pos   Position
 	Name  Variable
@@ -290,6 +307,7 @@ type IterableExpression struct {
 	Items []Expression
 }
 
+// Position of IterableExpression
 func (i *IterableExpression) Position() Position {
 	return i.pos
 }
@@ -298,6 +316,7 @@ func (i *IterableExpression) String() string {
 	return fmt.Sprintf("")
 }
 
+// Next part of IterableExpression
 func (i *IterableExpression) Next() (int, Expression) {
 	if i.Index+1 >= len(i.Items) {
 		return -1, nil
@@ -307,10 +326,12 @@ func (i *IterableExpression) Next() (int, Expression) {
 	return i.Index, item
 }
 
+// Break like break in for
 type Break struct {
 	pos Position
 }
 
+// Position of Break
 func (b *Break) Position() Position {
 	return b.pos
 }
@@ -319,10 +340,12 @@ func (b *Break) String() string {
 	return "break"
 }
 
+// Continue like continue in for
 type Continue struct {
 	pos Position
 }
 
+// Position of Continue
 func (b *Continue) Position() Position {
 	return b.pos
 }
@@ -331,11 +354,13 @@ func (b *Continue) String() string {
 	return "continue"
 }
 
+// Return like return varA
 type Return struct {
 	pos   Position
 	Value Expression
 }
 
+// Position of Return
 func (r *Return) Position() Position {
 	return r.pos
 }
@@ -348,12 +373,14 @@ func (r *Return) String() string {
 	return fmt.Sprintf("return %s", r.Value.String())
 }
 
+// Field like obj.age
 type Field struct {
 	pos      Position
 	Variable Variable
 	Value    Expression
 }
 
+// Position of Field
 func (f *Field) Position() Position {
 	return f.pos
 }
@@ -365,11 +392,13 @@ func (f *Field) String() string {
 	return fmt.Sprintf("%s.%s", f.Variable.String(), f.Value.String())
 }
 
+// Boolen like true, false
 type Boolen struct {
 	pos   Position
 	Value bool
 }
 
+// Position of Boolen
 func (b *Boolen) Position() Position {
 	return b.pos
 }
@@ -381,11 +410,13 @@ func (b *Boolen) String() string {
 	return "false"
 }
 
+// StringExpression like 'hello world !'
 type StringExpression struct {
 	pos   Position
 	Value string
 }
 
+// Position of StringExpression
 func (s *StringExpression) Position() Position {
 	return s.pos
 }
@@ -394,11 +425,13 @@ func (s *StringExpression) String() string {
 	return s.Value
 }
 
+// Comment line for sth
 type Comment struct {
 	pos   Position
 	Value string
 }
 
+// Position of comment
 func (c *Comment) Position() Position {
 	return c.pos
 }

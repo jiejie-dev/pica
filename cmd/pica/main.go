@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/jeremaihloo/funny/langs"
 	"os"
 
 	"github.com/alecthomas/kingpin"
@@ -62,6 +63,10 @@ var (
 	diffCommitNewer = versionDiff.Arg("hash-newer", "The hash of newer one.").Default("HEAD").String()
 
 	cliVersionCommand = app.Command("version", "Command line interface version.")
+
+	combineCode   = app.Command("combine", "Combine code that imported.")
+	combineFile   = combineCode.Arg("filename", "File to be combined.").Required().String()
+	combineOutput = combineCode.Arg("output", "Output file name for combined code.").String()
 )
 
 func main() {
@@ -108,6 +113,13 @@ func main() {
 		fmt.Printf("Commit:   %s\n", COMMIT)
 		fmt.Printf("Builds:   %s\n", BuildAt)
 		fmt.Printf("Golang:   %s\n", GOLANG)
+		break
+	case combineCode.FullCommand():
+		code, err := langs.CombinedCode(*combineFile)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(code)
 		break
 	default:
 		kingpin.Usage()

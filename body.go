@@ -137,6 +137,5 @@ func createJsonRequest(req *ApiRequest, runner *ApiRunner, bodyParams map[string
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(string(jsonContent))
 	return http.NewRequest(req.Method, targetUrl, bytes.NewBuffer(jsonContent))
 }
