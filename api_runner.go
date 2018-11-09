@@ -57,6 +57,7 @@ func (runner *ApiRunner) Run() error {
 	runner.vm.RegisterFunction("phone", Phone)
 	runner.vm.RegisterFunction("words", Words)
 	runner.vm.RegisterFunction("name", FullName)
+	runner.vm.RegisterFunction()
 	err := runner.Parse()
 	if err != nil {
 		return err

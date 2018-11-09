@@ -24,3 +24,7 @@ func Phone(interpreter *langs.Interpreter, args []langs.Value) langs.Value {
 func Words(interpreter *langs.Interpreter, args []langs.Value) langs.Value {
 	return langs.Value(fake.Words())
 }
+
+func Domain(interpreter *langs.Interpreter, args []langs.Value) langs.Value {
+	return langs.Value(fake.DomainZone())
+}

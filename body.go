@@ -21,8 +21,17 @@ func CreateHttpRequest(req *ApiRequest, runner *ApiRunner) (httpReq *http.Reques
 	if req.Method != "GET" && req.Method != "DELETE" {
 		bodyParams = runner.vm.Lookup(strings.ToLower(req.Method)).(map[string]langs.Value)
 	}
-	switch req.Headers["Content-Type"][0] {
+	headers := runner.vm.LookupDefault("headers", nil).(map[string]langs.Value)
+	contentType := "unknow content type"
+	if headers != nil {
+		contentType = headers["Content-Type"].(string)
+	} else {
+		contentType = req.Headers["Content-Type"][0]
+	}
+
+	switch contentType {
 	case "application/x-www-form-urlencoded":
+		fmt.Printf("create %s", "application/x-www-form-urlencoded")
 		httpReq, err = createFormUrlEncodedRequest(req, runner, bodyParams)
 		if err != nil {
 			return nil, err
@@ -54,7 +63,7 @@ func CreateHttpRequest(req *ApiRequest, runner *ApiRunner) (httpReq *http.Reques
 		return nil, errors.New("unknow http method")
 
 	}
-	headers := runner.vm.LookupDefault("headers", nil).(map[string]langs.Value)
+
 	if headers != nil {
 		httpReq.Header = VmMap2HttpHeaders(headers)
 	} else {
@@ -87,6 +96,7 @@ func createFormUrlEncodedRequest(req *ApiRequest, runner *ApiRunner, bodyParams 
 		v.Set(key, getValue(val))
 	}
 	u := ioutil.NopCloser(strings.NewReader(v.Encode()))
+	fmt.Printf("application/x-www-form-urlencoded %s\n", v.Encode())
 	targetUrl, err := getTargetUrl(req, runner)
 	if err != nil {
 		return nil, err

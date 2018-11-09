@@ -1,13 +1,54 @@
 package pica
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/jeremaihloo/funny/langs"
 	"github.com/mitchellh/go-homedir"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
 )
+
+type Task struct {
+	Names []string
+}
+
+type Project struct {
+	Name      string
+	Version   string
+	Author string
+	CreatedAt string
+	LastRunAt string
+	Tasks     map[string][]*Task
+}
+
+func NewProject(name, version, author, created, lastRunAt string) *Project {
+	return &Project{
+		Name:      name,
+		Version:   version,
+		Author:author,
+		CreatedAt: created,
+		LastRunAt: lastRunAt,
+	}
+}
+
+func (p *Project) Save() error {
+	data, err := json.Marshal(p)
+	if err != nil {
+		return err
+	}
+	return ioutil.WriteFile("pica.json", data, os.ModePerm)
+}
+
+//func (p *Project) RunTask(name string) error {
+//	for key, val := range p.Tasks{
+//		if key == name{
+//			apiRunner := NewApiRunnerFromFile()
+//		}
+//	}
+//}
 
 type ApiRequest struct {
 	Headers     http.Header
