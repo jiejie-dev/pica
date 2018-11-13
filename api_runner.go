@@ -4,16 +4,18 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/fatih/color"
-	"github.com/jeremaihloo/funny/langs"
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/fatih/color"
+	"github.com/jeremaihloo/funny/langs"
 )
 
-type ApiRunner struct {
+// APIRunner the runner
+type APIRunner struct {
 	Filename string
-	ApiNames []string
+	APINames []string
 	Delay    int
 
 	content []byte
@@ -22,15 +24,16 @@ type ApiRunner struct {
 	client  *http.Client
 	output  *Output
 
-	ApiItems  []*ApiItem
+	APIItems  []*ApiItem
 	Block     langs.Block
 	InitLines langs.Block
 }
 
-func NewApiRunnerFromFile(filename string, apiNames []string, delay int) *ApiRunner {
-	return &ApiRunner{
+// NewAPIRunnerFromFile create a runner from a pica file
+func NewAPIRunnerFromFile(filename string, apiNames []string, delay int) *APIRunner {
+	return &APIRunner{
 		Filename: filename,
-		ApiNames: apiNames,
+		APINames: apiNames,
 		Delay:    delay,
 
 		client: http.DefaultClient,
@@ -39,10 +42,11 @@ func NewApiRunnerFromFile(filename string, apiNames []string, delay int) *ApiRun
 	}
 }
 
-func NewApiRunnerFromContent(content []byte) *ApiRunner {
-	return &ApiRunner{
+// NewAPIRunnerFromContent create a runner from a pica content
+func NewAPIRunnerFromContent(content []byte) *APIRunner {
+	return &APIRunner{
 		Filename: "",
-		ApiNames: []string{},
+		APINames: []string{},
 		Delay:    0,
 		content:  content,
 		client:   http.DefaultClient,
@@ -51,35 +55,35 @@ func NewApiRunnerFromContent(content []byte) *ApiRunner {
 	}
 }
 
-func (runner *ApiRunner) Run() error {
+// Run run the task
+func (runner *APIRunner) Run() error {
 	runner.vm.RegisterFunction("address", Address)
 	runner.vm.RegisterFunction("email", Email)
 	runner.vm.RegisterFunction("phone", Phone)
 	runner.vm.RegisterFunction("words", Words)
 	runner.vm.RegisterFunction("name", FullName)
-	runner.vm.RegisterFunction()
 	err := runner.Parse()
 	if err != nil {
 		return err
 	}
 	// parse api file to ApiRequest
-	err = runner.ParseApiItems()
+	err = runner.ParseAPIItems()
 	if err != nil {
 		return err
 	}
 
 	runner.RunInitLines()
 
-	for i := 0; i < len(runner.ApiItems); i++ {
-		item := runner.ApiItems[i]
-		if len(runner.ApiNames) == 0 {
+	for i := 0; i < len(runner.APIItems); i++ {
+		item := runner.APIItems[i]
+		if len(runner.APINames) == 0 {
 			err = runner.RunSingle(item)
 			if err != nil {
 				return err
 			}
 		} else {
-			for index := 0; index < len(runner.ApiNames); index++ {
-				name := runner.ApiNames[index]
+			for index := 0; index < len(runner.APINames); index++ {
+				name := runner.APINames[index]
 				if item.Request.Name == name {
 					err = runner.RunSingle(item)
 					if err != nil {
@@ -92,7 +96,8 @@ func (runner *ApiRunner) Run() error {
 	return nil
 }
 
-func (runner *ApiRunner) Parse() error {
+// Parse parse pica file
+func (runner *APIRunner) Parse() error {
 	if runner.Filename != "" {
 		buffer, err := langs.CombinedCode(runner.Filename)
 		if err != nil {
@@ -105,13 +110,15 @@ func (runner *ApiRunner) Parse() error {
 	return nil
 }
 
-func (runner *ApiRunner) RunInitLines() {
+// RunInitLines run the code of initialization
+func (runner *APIRunner) RunInitLines() {
 	for _, line := range runner.InitLines {
 		runner.vm.EvalStatement(line)
 	}
 }
 
-func (runner *ApiRunner) RunSingle(item *ApiItem) error {
+// RunSingle run the single api item
+func (runner *APIRunner) RunSingle(item *ApiItem) error {
 	// assign vars
 
 	runner.vm.Assign("url", item.Request.Url)
@@ -123,7 +130,7 @@ func (runner *ApiRunner) RunSingle(item *ApiItem) error {
 	headers := runner.vm.Lookup("headers").(map[string]langs.Value)
 
 	// send ApiRequest by http client
-	res, err := runner.DoApiRequest(item.Request)
+	res, err := runner.DoAPIRequest(item.Request)
 	if err != nil {
 		runner.output.ErrorRequest(err)
 		return fmt.Errorf("do http request error %s", err.Error())
@@ -172,7 +179,8 @@ func (runner *ApiRunner) RunSingle(item *ApiItem) error {
 	return nil
 }
 
-func (runner *ApiRunner) DoApiRequest(req *ApiRequest) (*http.Response, error) {
+// DoAPIRequest run the api request
+func (runner *APIRunner) DoAPIRequest(req *ApiRequest) (*http.Response, error) {
 
 	runner.output.EchoStartRequest(req, runner)
 
@@ -198,7 +206,8 @@ func (runner *ApiRunner) DoApiRequest(req *ApiRequest) (*http.Response, error) {
 	return res, nil
 }
 
-func (runner *ApiRunner) ParseApiItems() error {
+// ParseAPIItems parse ap items from pica code
+func (runner *APIRunner) ParseAPIItems() error {
 	headers := VmMap2HttpHeaders(DefaultHeaders)
 	inited := false
 	index := 0
@@ -237,24 +246,24 @@ func (runner *ApiRunner) ParseApiItems() error {
 					Request:  &req,
 					Response: &ApiResponse{},
 				}
-				runner.ApiItems = append(runner.ApiItems, apiItem)
+				runner.APIItems = append(runner.APIItems, apiItem)
 			}
 		case *langs.FunctionCall:
 			if line.Name == "assert" {
 				asserting = true
 			}
 			if asserting {
-				item := runner.ApiItems[len(runner.ApiItems)-1]
+				item := runner.APIItems[len(runner.APIItems)-1]
 				item.Response.lines = append(item.Response.lines, line)
 				break
 			}
 		default:
 			if inited {
 				if asserting {
-					item := runner.ApiItems[len(runner.ApiItems)-1]
+					item := runner.APIItems[len(runner.APIItems)-1]
 					item.Response.lines = append(item.Response.lines, line)
 				} else {
-					item := runner.ApiItems[len(runner.ApiItems)-1]
+					item := runner.APIItems[len(runner.APIItems)-1]
 					item.Request.lines = append(item.Request.lines, line)
 				}
 			} else {

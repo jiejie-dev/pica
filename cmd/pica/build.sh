@@ -1,0 +1,1 @@
+go build -ldflags "-X main.BuildAt=`date '+%Y-%m-%d_%I:%M:%S'` -X main.COMMIT=`git rev-parse HEAD` -X 'main.GOLANG=`go version`'"

@@ -113,6 +113,6 @@ func (query Query) String() (string, error) {
 	return qs.Marshal(query)
 }
 
-func PicaContextFromRunner(runner *ApiRunner) *PicaContext {
+func PicaContextFromRunner(runner *APIRunner) *PicaContext {
 	return &PicaContext{}
 }

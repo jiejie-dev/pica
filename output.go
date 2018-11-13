@@ -56,7 +56,7 @@ func (o *Output) RepeatLine(e string, count int) string {
 	return "\n" + strings.Repeat(e, count)
 }
 
-func (o *Output) EchoStartRequest(request *ApiRequest, runner *ApiRunner) error {
+func (o *Output) EchoStartRequest(request *ApiRequest, runner *APIRunner) error {
 	fmt.Println(o.L("="))
 	fmt.Println()
 	color.Green("%s %s %s", request.Method, request.Url, request.Name)
@@ -107,7 +107,7 @@ func (o *Output) Headers(headers http.Header) {
 	fmt.Println()
 }
 
-func (o *Output) RequestBody(req *http.Request, runner *ApiRunner) error {
+func (o *Output) RequestBody(req *http.Request, runner *APIRunner) error {
 	if req.Method != "GET" && req.Method != "DELETE" {
 		body := runner.vm.Lookup(strings.ToLower(req.Method))
 		data, err := prettyjson.Marshal(body)

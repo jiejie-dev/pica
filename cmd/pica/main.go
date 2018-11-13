@@ -84,7 +84,7 @@ func main() {
 	}
 	switch kingpin.MustParse(c, err) {
 	case cmdRun.FullCommand():
-		apiRunner := pica.NewApiRunnerFromFile(*runFileName, *runAPINames, *runDelay)
+		apiRunner := pica.NewAPIRunnerFromFile(*runFileName, *runAPINames, *runDelay)
 		err := apiRunner.Run()
 		if err != nil {
 			panic(err)
@@ -124,16 +124,16 @@ func main() {
 		}
 		fmt.Println(code)
 	case listCommand.FullCommand():
-		apiRunner := pica.NewApiRunnerFromFile(*listAPIFile, *runAPINames, *runDelay)
+		apiRunner := pica.NewAPIRunnerFromFile(*listAPIFile, *runAPINames, *runDelay)
 		err := apiRunner.Parse()
 		if err != nil {
 			panic(err)
 		}
-		err = apiRunner.ParseApiItems()
+		err = apiRunner.ParseAPIItems()
 		if err != nil {
 			panic(err)
 		}
-		for _, item := range apiRunner.ApiItems {
+		for _, item := range apiRunner.APIItems {
 			fmt.Printf("%s %s\n", item.Request.Name, item.Request.Description)
 		}
 		break

@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/jeremaihloo/funny/langs"
-	"github.com/pkg/errors"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
@@ -14,9 +12,12 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/jeremaihloo/funny/langs"
+	"github.com/pkg/errors"
 )
 
-func CreateHttpRequest(req *ApiRequest, runner *ApiRunner) (httpReq *http.Request, err error) {
+func CreateHttpRequest(req *ApiRequest, runner *APIRunner) (httpReq *http.Request, err error) {
 	var bodyParams map[string]langs.Value
 	if req.Method != "GET" && req.Method != "DELETE" {
 		bodyParams = runner.vm.Lookup(strings.ToLower(req.Method)).(map[string]langs.Value)
@@ -83,14 +84,14 @@ func getValue(val langs.Value) string {
 	}
 }
 
-func getTargetUrl(req *ApiRequest, runner *ApiRunner) (string, error) {
+func getTargetUrl(req *ApiRequest, runner *APIRunner) (string, error) {
 	baseUrl := runner.vm.Lookup("baseUrl").(string)
 	targetUrl, query, err := CompileUrl(baseUrl+req.Url, runner.vm)
 	req.Query = query
 	return targetUrl, err
 }
 
-func createFormUrlEncodedRequest(req *ApiRequest, runner *ApiRunner, bodyParams map[string]langs.Value) (*http.Request, error) {
+func createFormUrlEncodedRequest(req *ApiRequest, runner *APIRunner, bodyParams map[string]langs.Value) (*http.Request, error) {
 	v := url.Values{}
 	for key, val := range bodyParams {
 		v.Set(key, getValue(val))
@@ -104,7 +105,7 @@ func createFormUrlEncodedRequest(req *ApiRequest, runner *ApiRunner, bodyParams 
 	return http.NewRequest(req.Method, targetUrl, u)
 }
 
-func createFormDataRequest(req *ApiRequest, runner *ApiRunner, bodyParams map[string]langs.Value) (*http.Request, error) {
+func createFormDataRequest(req *ApiRequest, runner *APIRunner, bodyParams map[string]langs.Value) (*http.Request, error) {
 	buf := new(bytes.Buffer)
 	writer := multipart.NewWriter(buf)
 	for key, val := range bodyParams {
@@ -138,7 +139,7 @@ func createFormDataRequest(req *ApiRequest, runner *ApiRunner, bodyParams map[st
 	return http.NewRequest(req.Method, targetUrl, buf)
 }
 
-func createJsonRequest(req *ApiRequest, runner *ApiRunner, bodyParams map[string]langs.Value) (*http.Request, error) {
+func createJsonRequest(req *ApiRequest, runner *APIRunner, bodyParams map[string]langs.Value) (*http.Request, error) {
 	targetUrl, err := getTargetUrl(req, runner)
 	if err != nil {
 		return nil, err

@@ -222,7 +222,7 @@ func Serve(filename string, port int) error {
 	return nil
 }
 
-func GenDocument(apiRunner *ApiRunner, output string) error {
+func GenDocument(apiRunner *APIRunner, output string) error {
 	if !strings.HasSuffix(output, ".md") && !strings.HasSuffix(output, ".html") {
 		return errors.New("only .md and .html supported")
 	}

@@ -56,12 +56,12 @@ func TSafeJson(obj interface{}) string {
 }
 
 type MarkdownDocGenerator struct {
-	runner     *ApiRunner
+	runner     *APIRunner
 	template   *template.Template
 	versionCtl *ApiVersionController
 }
 
-func NewMarkdownDocGenerator(runner *ApiRunner, theme, output string) *MarkdownDocGenerator {
+func NewMarkdownDocGenerator(runner *APIRunner, theme, output string) *MarkdownDocGenerator {
 	if theme != "default" {
 		file, err := os.Open(filepath.Join(PROFILE_HOME, "doc_template.md"))
 		if err != nil {
