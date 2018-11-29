@@ -163,7 +163,7 @@ func Serve(filename string, port int) error {
 	}
 	output := github_flavored_markdown.Markdown(input)
 	r := gin.Default()
-	template := BuildHtml(input)
+	template := BuildHTML(input)
 
 	r.GET("/", func(c *gin.Context) {
 		rs := strings.Replace(template, "[body]", string(output), -1)
@@ -238,7 +238,7 @@ func GenDocument(apiRunner *APIRunner, output string) error {
 	fmt.Printf("%s\n", results)
 	// if _, err := os.Stat(p.Output); err == nil {
 	if strings.HasSuffix(output, ".html") {
-		results = []byte(BuildHtml(results))
+		results = []byte(BuildHTML(results))
 	}
 	err = ioutil.WriteFile(output, results, os.ModePerm)
 	if err != nil {

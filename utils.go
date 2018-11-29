@@ -34,7 +34,7 @@ func VmMap2HttpHeaders(vmMap map[string]langs.Value) http.Header {
 	return headers
 }
 
-func CompileUrl(url string, vm *langs.Interpreter) (string, Query, error) {
+func CompileURL(url string, vm *langs.Interpreter) (string, Query, error) {
 	queryValue := vm.LookupDefault("query", nil)
 	query := Query{}
 	if queryValue != nil {
@@ -75,7 +75,7 @@ func CompileUrl(url string, vm *langs.Interpreter) (string, Query, error) {
 	return result, query, nil
 }
 
-func BuildHtml(input []byte) string {
+func BuildHTML(input []byte) string {
 	output := github_flavored_markdown.Markdown(input)
 	statikFS, _ := fs.New()
 	tFile, err := statikFS.Open("/doc_template.html")

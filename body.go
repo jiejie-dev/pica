@@ -52,7 +52,7 @@ func CreateHttpRequest(req *ApiRequest, runner *APIRunner) (httpReq *http.Reques
 		break
 	default:
 		if req.Method == "GET" || req.Method == "DELETE" {
-			targetUrl, err := getTargetUrl(req, runner)
+			targetUrl, err := getTargetURL(req, runner)
 			if err != nil {
 				return nil, err
 			}
@@ -84,9 +84,9 @@ func getValue(val langs.Value) string {
 	}
 }
 
-func getTargetUrl(req *ApiRequest, runner *APIRunner) (string, error) {
-	baseUrl := runner.vm.Lookup("baseUrl").(string)
-	targetUrl, query, err := CompileUrl(baseUrl+req.Url, runner.vm)
+func getTargetURL(req *ApiRequest, runner *APIRunner) (string, error) {
+	baseURL := runner.vm.Lookup("baseUrl").(string)
+	targetUrl, query, err := CompileURL(baseURL+req.Url, runner.vm)
 	req.Query = query
 	return targetUrl, err
 }
@@ -98,7 +98,7 @@ func createFormUrlEncodedRequest(req *ApiRequest, runner *APIRunner, bodyParams 
 	}
 	u := ioutil.NopCloser(strings.NewReader(v.Encode()))
 	fmt.Printf("application/x-www-form-urlencoded %s\n", v.Encode())
-	targetUrl, err := getTargetUrl(req, runner)
+	targetUrl, err := getTargetURL(req, runner)
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +132,7 @@ func createFormDataRequest(req *ApiRequest, runner *APIRunner, bodyParams map[st
 		}
 	}
 	writer.Close()
-	targetUrl, err := getTargetUrl(req, runner)
+	targetUrl, err := getTargetURL(req, runner)
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +140,7 @@ func createFormDataRequest(req *ApiRequest, runner *APIRunner, bodyParams map[st
 }
 
 func createJsonRequest(req *ApiRequest, runner *APIRunner, bodyParams map[string]langs.Value) (*http.Request, error) {
-	targetUrl, err := getTargetUrl(req, runner)
+	targetUrl, err := getTargetURL(req, runner)
 	if err != nil {
 		return nil, err
 	}

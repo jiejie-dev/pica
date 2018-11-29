@@ -60,7 +60,7 @@ func (o *Output) EchoStartRequest(request *ApiRequest, runner *APIRunner) error 
 	fmt.Println(o.L("="))
 	fmt.Println()
 	color.Green("%s %s %s", request.Method, request.Url, request.Name)
-	targetUrl, err := getTargetUrl(request, runner)
+	targetUrl, err := getTargetURL(request, runner)
 	if err != nil {
 		return err
 	}

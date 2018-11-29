@@ -11,7 +11,7 @@ import (
 func TestCompileUrl(t *testing.T) {
 	vm := langs.NewInterpreterWithScope(langs.Scope{})
 	vm.Assign("user_id", "10")
-	url, query, err := CompileUrl("/api/users/<user_id>", vm)
+	url, query, err := CompileURL("/api/users/<user_id>", vm)
 	if err != nil {
 		t.Error(err)
 	}
@@ -21,7 +21,7 @@ func TestCompileUrl(t *testing.T) {
 		"name": "jeremaihloo",
 		"age":  "10",
 	})
-	url, query, err = CompileUrl("/api/users/<user_id>", vm)
+	url, query, err = CompileURL("/api/users/<user_id>", vm)
 	if err != nil {
 		t.Error(err)
 	}
