@@ -3,12 +3,13 @@ package pica
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/jeremaihloo/funny/langs"
-	"github.com/mitchellh/go-homedir"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/jeremaihloo/funny/langs"
+	"github.com/mitchellh/go-homedir"
 )
 
 type Task struct {
@@ -18,7 +19,7 @@ type Task struct {
 type Project struct {
 	Name      string
 	Version   string
-	Author string
+	Author    string
 	CreatedAt string
 	LastRunAt string
 	Tasks     map[string][]*Task
@@ -28,7 +29,7 @@ func NewProject(name, version, author, created, lastRunAt string) *Project {
 	return &Project{
 		Name:      name,
 		Version:   version,
-		Author:author,
+		Author:    author,
 		CreatedAt: created,
 		LastRunAt: lastRunAt,
 	}
