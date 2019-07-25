@@ -4,8 +4,6 @@ go 1.12
 
 require (
 	github.com/alecthomas/kingpin v2.2.6+incompatible
-	github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc // indirect
-	github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf // indirect
 	github.com/corpix/uarand v0.1.0 // indirect
 	github.com/fatih/color v1.7.0
 	github.com/fixate/go-qs v0.0.0-20170330035900-bd286716509d
@@ -31,6 +29,8 @@ require (
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/sourcegraph/annotate v0.0.0-20160123013949-f4cad6c6324d // indirect
 	github.com/sourcegraph/syntaxhighlight v0.0.0-20170531221838-bd320f5d308e // indirect
+	github.com/spf13/cobra v0.0.5
+	github.com/spf13/viper v1.4.0
 	github.com/stretchr/testify v1.3.0
 	gopkg.in/AlecAivazis/survey.v1 v1.8.5
 	gopkg.in/src-d/go-git.v4 v4.12.0
