@@ -3,7 +3,6 @@ module github.com/jeremaihloo/pica
 go 1.12
 
 require (
-	github.com/alecthomas/kingpin v2.2.6+incompatible
 	github.com/corpix/uarand v0.1.0 // indirect
 	github.com/fatih/color v1.7.0
 	github.com/fixate/go-qs v0.0.0-20170330035900-bd286716509d

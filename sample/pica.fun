@@ -25,4 +25,4 @@ post = {
    name = 'test'
    // 密码
    age = 10
- }
+}
