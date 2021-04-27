@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/jeremaihloo/funny/langs"
-
 	"github.com/alecthomas/kingpin"
+	"github.com/jeremaihloo/funny/langs"
 	"github.com/jeremaihloo/pica"
 )
 

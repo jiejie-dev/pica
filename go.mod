@@ -1,8 +1,9 @@
 module github.com/jeremaihloo/pica
 
-go 1.12
+go 1.16
 
 require (
+	github.com/alecthomas/kingpin v2.2.6+incompatible // indirect
 	github.com/corpix/uarand v0.1.0 // indirect
 	github.com/fatih/color v1.7.0
 	github.com/fixate/go-qs v0.0.0-20170330035900-bd286716509d
@@ -11,7 +12,7 @@ require (
 	github.com/hokaccha/go-prettyjson v0.0.0-20180920040306-f579f869bbfe
 	github.com/howeyc/fsnotify v0.9.0
 	github.com/icrowley/fake v0.0.0-20180203215853-4178557ae428
-	github.com/jeremaihloo/funny v0.0.0-20190510021420-5d8125eece11
+	github.com/jeremaihloo/funny v0.0.0-20210407112728-629b09a807a7
 	github.com/magiconair/properties v1.8.1
 	github.com/microcosm-cc/bluemonday v1.0.2 // indirect
 	github.com/mitchellh/go-homedir v1.1.0

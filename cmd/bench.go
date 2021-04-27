@@ -22,29 +22,23 @@ import (
 // benchCmd represents the bench command
 var benchCmd = &cobra.Command{
 	Use:   "bench",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Benchmark apis.",
 	Run: func(cmd *cobra.Command, args []string) {
 		// Returns a new Benchmark pointer with all the defaults assigned
-		b := New()
-		// time to wait before firing the consequent request
-		// WaitPerReq = time.Millisecond * 1
-		// print available stats while the benchmark is running
-		b.ShowProgress = true
-		// Total number of requests to fire
-		b.TotalRequests = 10
-		// Duration in which all the requests have to be finished firing (in milliseconds).
-		b.BenchDuration = 7300
+		// b := New()
+		// // time to wait before firing the consequent request
+		// // WaitPerReq = time.Millisecond * 1
+		// // print available stats while the benchmark is running
+		// b.ShowProgress = true
+		// // Total number of requests to fire
+		// b.TotalRequests = 10
+		// // Duration in which all the requests have to be finished firing (in milliseconds).
+		// b.BenchDuration = 7300
 
-		// Updates all the necessary fields according to the configuration provided
-		b.Init()
-		// Run the benchmark
-		b.Run(test)
+		// // Updates all the necessary fields according to the configuration provided
+		// b.Init()
+		// // Run the benchmark
+		// b.Run(test)
 	},
 }
 
