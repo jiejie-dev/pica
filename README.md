@@ -31,7 +31,7 @@ go get github.com/jeremaihloo/pica/cmd/pica
 
 ## Usage
 
-```
+```javascript
 // It's a full demo for pica.
 
 // Init vars
