@@ -56,8 +56,8 @@ func (v *ApiVersionController) Commit(msg string) (string, error) {
 	msg = fmt.Sprintf("[Pica] %s", msg)
 	hash, err := w.Commit(msg, &git.CommitOptions{
 		Author: &object.Signature{
-			Name:  "jeremaihloo",
-			Email: "jeremaihloo1024@gmail.com",
+			Name:  "jerloo",
+			Email: "jerloo1024@gmail.com",
 			When:  time.Now(),
 		},
 	})

@@ -13,20 +13,20 @@ import (
 	"regexp"
 
 	"github.com/fixate/go-qs"
-	"github.com/jeremaihloo/funny/langs"
+	"github.com/jerloo/funny"
 	"github.com/rakyll/statik/fs"
 	"github.com/shurcooL/github_flavored_markdown"
 )
 
-func HttpHeaders2VmMap(httpHeader http.Header) map[string]langs.Value {
-	var headers = map[string]langs.Value{}
+func HttpHeaders2VmMap(httpHeader http.Header) map[string]funny.Value {
+	var headers = map[string]funny.Value{}
 	for k, _ := range httpHeader {
 		headers[k] = httpHeader.Get(k)
 	}
 	return headers
 }
 
-func VmMap2HttpHeaders(vmMap map[string]langs.Value) http.Header {
+func VmMap2HttpHeaders(vmMap map[string]funny.Value) http.Header {
 	headers := http.Header{}
 	for k, v := range vmMap {
 		headers.Set(k, v.(string))
@@ -34,11 +34,11 @@ func VmMap2HttpHeaders(vmMap map[string]langs.Value) http.Header {
 	return headers
 }
 
-func CompileURL(url string, vm *langs.Interpreter) (string, Query, error) {
+func CompileURL(url string, vm *funny.Interpreter) (string, Query, error) {
 	queryValue := vm.LookupDefault("query", nil)
 	query := Query{}
 	if queryValue != nil {
-		valQuery := queryValue.(map[string]langs.Value)
+		valQuery := queryValue.(map[string]funny.Value)
 		for key, val := range valQuery {
 			query[key] = val
 		}
@@ -59,7 +59,7 @@ func CompileURL(url string, vm *langs.Interpreter) (string, Query, error) {
 		case float64:
 			return strconv.FormatFloat(val, 'f', -1, 64)
 		default:
-			panic(fmt.Errorf("unsupport type [%s], only support [int][string]", langs.Typing(val)))
+			panic(fmt.Errorf("unsupport type [%s], only support [int][string]", funny.Typing(val)))
 		}
 	})
 	if query == nil || len(query) == 0 {

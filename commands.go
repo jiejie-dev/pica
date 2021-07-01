@@ -16,8 +16,8 @@ import (
 	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
 	"github.com/howeyc/fsnotify"
-	"github.com/jeremaihloo/funny/langs"
-	_ "github.com/jeremaihloo/pica/statik"
+	"github.com/jerloo/funny"
+	_ "github.com/jerloo/pica/statik"
 	"github.com/rakyll/statik/fs"
 	"github.com/shurcooL/github_flavored_markdown"
 	"gopkg.in/AlecAivazis/survey.v1"
@@ -129,7 +129,7 @@ func Format(filename string, save, print bool) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("parse error %v", err.Error())
 	}
-	parser := langs.NewParser(buffer)
+	parser := funny.NewParser(buffer)
 	parser.Consume("")
 	flag := 0
 	for {
@@ -138,7 +138,7 @@ func Format(filename string, save, print bool) (string, error) {
 			break
 		}
 		switch item.(type) {
-		case *langs.NewLine:
+		case *funny.NewLine:
 			flag += 1
 			if flag < 1 {
 				continue

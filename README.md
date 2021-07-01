@@ -1,7 +1,7 @@
 # pica
 
-[![Build Status](https://travis-ci.org/jeremaihloo/pica.svg?branch=master)](https://travis-ci.org/jeremaihloo/pica)
-[![go report](https://goreportcard.com/badge/github.com/jeremaihloo/pica)](https://goreportcard.com/badge/github.com/jeremaihloo/pica)
+[![Build Status](https://travis-ci.org/jerloo/pica.svg?branch=master)](https://travis-ci.org/jerloo/pica)
+[![go report](https://goreportcard.com/badge/github.com/jerloo/pica)](https://goreportcard.com/badge/github.com/jerloo/pica)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
 > Pica is a restful automated testing tool and document generate tool written in golang.
 
@@ -26,7 +26,7 @@ It's under development.
 ## Install
 
 ```console
-go get github.com/jeremaihloo/pica/cmd/pica
+go get github.com/jerloo/pica/cmd/pica
 ```
 
 ## Usage
@@ -38,7 +38,7 @@ go get github.com/jeremaihloo/pica/cmd/pica
 name = 'demo'
 description = 'This is a demo for pica.'
 version = '0.0.1'
-author = 'jeremaihloo@gmail.com jeremaihloo'
+author = 'jerloo@gmail.com jerloo'
 baseUrl = 'http://localhost:8080'
 
 headers = {
@@ -102,4 +102,4 @@ Commands:
 
 The MIT License (MIT)
 
-Copyright (c) 2018 jeremaihloo
+Copyright (c) 2018 jerloo

@@ -5,7 +5,7 @@ import "github.com/gin-gonic/gin"
 func main() {
 	r := gin.Default()
 	user := map[string]interface{}{
-		"name": "jeremaihloo",
+		"name": "jerloo",
 		"age":  23,
 	}
 	users := []map[string]interface{}{

@@ -10,7 +10,7 @@ import (
 	"strings"
 	"text/template"
 
-	_ "github.com/jeremaihloo/pica/statik"
+	_ "github.com/jerloo/pica/statik"
 	"github.com/rakyll/statik/fs"
 )
 

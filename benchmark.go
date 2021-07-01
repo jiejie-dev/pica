@@ -1,4 +1,4 @@
-package cores
+package pica
 
 import (
 	"crypto/md5"

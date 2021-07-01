@@ -16,8 +16,7 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/jerloo/pica"
 	"github.com/spf13/cobra"
 )
 
@@ -26,7 +25,15 @@ var runCmd = &cobra.Command{
 	Use:   "run",
 	Short: "Run an api file.",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("run called")
+		if len(args) == 0 {
+			return
+		}
+		file := args[0]
+		apiRunner := pica.NewAPIRunnerFromFile(file, nil, 0)
+		err := apiRunner.Run()
+		if err != nil {
+			panic(err)
+		}
 	},
 }
 

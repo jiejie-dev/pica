@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
-	"github.com/jeremaihloo/funny/langs"
+	"github.com/jerloo/funny"
 )
 
 // APIRunner the runner
@@ -19,14 +19,14 @@ type APIRunner struct {
 	Delay    int
 
 	content []byte
-	vm      *langs.Interpreter
-	parser  *langs.Parser
+	vm      *funny.Interpreter
+	parser  *funny.Parser
 	client  *http.Client
 	output  *Output
 
 	APIItems  []*ApiItem
-	Block     langs.Block
-	InitLines langs.Block
+	Block     funny.Block
+	InitLines funny.Block
 }
 
 // NewAPIRunnerFromFile create a runner from a pica file
@@ -37,7 +37,7 @@ func NewAPIRunnerFromFile(filename string, apiNames []string, delay int) *APIRun
 		Delay:    delay,
 
 		client: http.DefaultClient,
-		vm:     langs.NewInterpreterWithScope(DefaultInitScope),
+		vm:     funny.NewInterpreterWithScope(DefaultInitScope),
 		output: DefaultOutput,
 	}
 }
@@ -50,7 +50,7 @@ func NewAPIRunnerFromContent(content []byte) *APIRunner {
 		Delay:    0,
 		content:  content,
 		client:   http.DefaultClient,
-		vm:       langs.NewInterpreterWithScope(DefaultInitScope),
+		vm:       funny.NewInterpreterWithScope(DefaultInitScope),
 		output:   DefaultOutput,
 	}
 }
@@ -99,13 +99,13 @@ func (runner *APIRunner) Run() error {
 // Parse parse pica file
 func (runner *APIRunner) Parse() error {
 	if runner.Filename != "" {
-		buffer, err := langs.CombinedCode(runner.Filename)
+		buffer, err := funny.CombinedCode("", runner.Filename)
 		if err != nil {
 			return fmt.Errorf("parse error %v", err.Error())
 		}
 		runner.content = []byte(buffer)
 	}
-	runner.parser = langs.NewParser(runner.content)
+	runner.parser = funny.NewParser(runner.content)
 	runner.Block = runner.parser.Parse()
 	return nil
 }
@@ -127,7 +127,7 @@ func (runner *APIRunner) RunSingle(item *ApiItem) error {
 		runner.vm.EvalStatement(line)
 	}
 
-	headers := runner.vm.Lookup("headers").(map[string]langs.Value)
+	headers := runner.vm.Lookup("headers").(map[string]funny.Value)
 
 	// send ApiRequest by http client
 	res, err := runner.DoAPIRequest(item.Request)
@@ -151,14 +151,14 @@ func (runner *APIRunner) RunSingle(item *ApiItem) error {
 
 	contentType := item.Response.Headers.Get("Content-Type")
 	if strings.HasPrefix(contentType, "application/json") {
-		jResults := make(map[string]langs.Value)
+		jResults := make(map[string]funny.Value)
 		jun := make(map[string]interface{})
 		err := json.Unmarshal(item.Response.Body, &jun)
 		if err != nil {
 			color.Red(fmt.Sprintf("json binding %s %s", err.Error(), item.Response.Body))
 		}
 		for k, v := range jun {
-			jResults[k] = langs.Value(v)
+			jResults[k] = funny.Value(v)
 		}
 		runner.vm.Assign("json", jResults)
 
@@ -215,7 +215,7 @@ func (runner *APIRunner) ParseAPIItems() error {
 	for index < len(runner.Block) {
 		line := runner.Block[index]
 		switch line := line.(type) {
-		case *langs.Comment:
+		case *funny.Comment:
 			text := strings.Trim(line.Value, " ")
 			texts := strings.Split(text, " ")
 			if len(texts) < 2 {
@@ -248,7 +248,7 @@ func (runner *APIRunner) ParseAPIItems() error {
 				}
 				runner.APIItems = append(runner.APIItems, apiItem)
 			}
-		case *langs.FunctionCall:
+		case *funny.FunctionCall:
 			if line.Name == "assert" {
 				asserting = true
 			}

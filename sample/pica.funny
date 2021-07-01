@@ -4,7 +4,7 @@
 name = 'demo'
 description = 'This is a demo for pica.'
 version = '0.0.1'
-author = 'jeremaihloo@gmail.com<jeremaihloo>'
+author = 'jerloo@gmail.com<jerloo>'
 baseUrl = 'http://localhost:8080'
 
 headers = {
@@ -13,16 +13,37 @@ headers = {
 
 // Apis format: [method] [path] [description]
 
-// GET /api/users api_get_users 获取用户列表
+// GET /api/users 获取用户列表
+query = {
+  // id
+  id = 10
+}
 headers.Authorization = 'slfjadslkfjlasdjfjas=='
 headers['Content-Type'] = 'application/json'
+// Response
 assert(status==200)
 echo(json.items)
+// Sample
+// {
+//   "test":"a"
+// }
+// Sample Ok
+// {
+//   "test":"a"
+// }
+// Sample Failure
+// {
+//   "test":"a"
+// }
 
-// POST /api/users api_create_user 新建用户
+// POST /api/users 新建用户
+// Description 我是API描述,可以换
+// 行
 post = {
    // 用户名
    name = 'test'
    // 密码
    age = 10
 }
+// Response
+assert(status==200)

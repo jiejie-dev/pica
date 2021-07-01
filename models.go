@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/jeremaihloo/funny/langs"
+	"github.com/jerloo/funny"
 	"github.com/mitchellh/go-homedir"
 )
 
@@ -59,16 +59,16 @@ type ApiRequest struct {
 	Name        string
 	Description string
 	Body        []byte
-	lines       langs.Block
+	lines       funny.Block
 }
 
 type ApiResponse struct {
 	Headers http.Header
 	Body    []byte
 	Status  int
-	lines   langs.Block
+	lines   funny.Block
 
-	saveLines langs.Block
+	saveLines funny.Block
 }
 
 type ApiItem struct {
@@ -86,21 +86,21 @@ type PicaContext struct {
 	MaxArrayShowRows int
 
 	ApiItems     []*ApiItem
-	Headers      map[string]langs.Value
+	Headers      map[string]funny.Value
 	VersionNotes *VersionNote
 }
 
-var DefaultHeaders = map[string]langs.Value{
+var DefaultHeaders = map[string]funny.Value{
 	"Accept":          "* /*",
 	"Accept-Language": "en-US,en;q=0.8",
 	"Cache-Control":   "max-age=0",
-	"User-Agent":      fmt.Sprintf("Pica Api Test Client/%s https://github.com/jeremaihloo/pica", Version),
+	"User-Agent":      fmt.Sprintf("Pica Api Test Client/%s https://github.com/jerloo/pica", Version),
 	"Connection":      "keep-alive",
 	"Referer":         "http://www.baidu.com/",
 	"Content-Type":    "application/json",
 }
 
-var DefaultInitScope = map[string]langs.Value{
+var DefaultInitScope = map[string]funny.Value{
 	"headers": DefaultHeaders,
 }
 

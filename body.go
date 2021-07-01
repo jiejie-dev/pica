@@ -13,16 +13,16 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/jeremaihloo/funny/langs"
+	"github.com/jerloo/funny"
 	"github.com/pkg/errors"
 )
 
 func CreateHttpRequest(req *ApiRequest, runner *APIRunner) (httpReq *http.Request, err error) {
-	var bodyParams map[string]langs.Value
+	var bodyParams map[string]funny.Value
 	if req.Method != "GET" && req.Method != "DELETE" {
-		bodyParams = runner.vm.Lookup(strings.ToLower(req.Method)).(map[string]langs.Value)
+		bodyParams = runner.vm.Lookup(strings.ToLower(req.Method)).(map[string]funny.Value)
 	}
-	headers := runner.vm.LookupDefault("headers", nil).(map[string]langs.Value)
+	headers := runner.vm.LookupDefault("headers", nil).(map[string]funny.Value)
 	contentType := "unknow content type"
 	if headers != nil {
 		contentType = headers["Content-Type"].(string)
@@ -73,14 +73,14 @@ func CreateHttpRequest(req *ApiRequest, runner *APIRunner) (httpReq *http.Reques
 	return
 }
 
-func getValue(val langs.Value) string {
+func getValue(val funny.Value) string {
 	switch val := val.(type) {
 	case int:
 		return string(val)
 	case string:
 		return val
 	default:
-		panic(fmt.Errorf("unsupport type [%s], only support [int][string]", langs.Typing(val)))
+		panic(fmt.Errorf("unsupport type [%s], only support [int][string]", funny.Typing(val)))
 	}
 }
 
@@ -91,7 +91,7 @@ func getTargetURL(req *ApiRequest, runner *APIRunner) (string, error) {
 	return targetUrl, err
 }
 
-func createFormUrlEncodedRequest(req *ApiRequest, runner *APIRunner, bodyParams map[string]langs.Value) (*http.Request, error) {
+func createFormUrlEncodedRequest(req *ApiRequest, runner *APIRunner, bodyParams map[string]funny.Value) (*http.Request, error) {
 	v := url.Values{}
 	for key, val := range bodyParams {
 		v.Set(key, getValue(val))
@@ -105,7 +105,7 @@ func createFormUrlEncodedRequest(req *ApiRequest, runner *APIRunner, bodyParams 
 	return http.NewRequest(req.Method, targetUrl, u)
 }
 
-func createFormDataRequest(req *ApiRequest, runner *APIRunner, bodyParams map[string]langs.Value) (*http.Request, error) {
+func createFormDataRequest(req *ApiRequest, runner *APIRunner, bodyParams map[string]funny.Value) (*http.Request, error) {
 	buf := new(bytes.Buffer)
 	writer := multipart.NewWriter(buf)
 	for key, val := range bodyParams {
@@ -139,7 +139,7 @@ func createFormDataRequest(req *ApiRequest, runner *APIRunner, bodyParams map[st
 	return http.NewRequest(req.Method, targetUrl, buf)
 }
 
-func createJsonRequest(req *ApiRequest, runner *APIRunner, bodyParams map[string]langs.Value) (*http.Request, error) {
+func createJsonRequest(req *ApiRequest, runner *APIRunner, bodyParams map[string]funny.Value) (*http.Request, error) {
 	targetUrl, err := getTargetURL(req, runner)
 	if err != nil {
 		return nil, err
