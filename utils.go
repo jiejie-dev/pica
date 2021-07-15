@@ -53,7 +53,7 @@ func CompileURL(url string, vm *funny.Interpreter) (string, Query, error) {
 		val := vm.Lookup(repl)
 		switch val := val.(type) {
 		case int:
-			return string(val)
+			return fmt.Sprint(val)
 		case string:
 			return val
 		case float64:

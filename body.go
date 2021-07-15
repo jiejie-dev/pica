@@ -76,7 +76,7 @@ func CreateHttpRequest(req *ApiRequest, runner *APIRunner) (httpReq *http.Reques
 func getValue(val funny.Value) string {
 	switch val := val.(type) {
 	case int:
-		return string(val)
+		return fmt.Sprint(val)
 	case string:
 		return val
 	default:

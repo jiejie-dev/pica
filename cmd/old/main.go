@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/alecthomas/kingpin"
-	"github.com/jerloo/funny"
 	"github.com/jerloo/pica"
 )
 
@@ -116,12 +115,6 @@ func main() {
 		fmt.Printf("Builds:   %s\n", BuildAt)
 		fmt.Printf("Golang:   %s\n", GOLANG)
 		break
-	case combineCode.FullCommand():
-		code, err := funny.CombinedCode(*combineFile)
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println(code)
 	case listCommand.FullCommand():
 		apiRunner := pica.NewAPIRunnerFromFile(*listAPIFile, *runAPINames, *runDelay)
 		err := apiRunner.Parse()

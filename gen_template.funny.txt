@@ -1,0 +1,39 @@
+
+token = ''
+baseUrl = 'http://localhost:5000/'
+debug = false
+
+{{range .}}
+    {{if eq .Request.Method "GET"}}
+        {{.Name}}({{joinQuery .}}) {
+            return httpreq('{{.Request.Method}}', baseUrl + '{{joinStrArr .Request.URL.Path "/"}}', {
+                {{range (getQueryNames .)}}
+                    {{.}} = {{.}}
+                {{end}}
+            }, {
+                Authorization = 'Bearer ' + token
+            }, debug)
+        }
+    {{end}}
+    {{if eq .Request.Method "POST"}}
+        {{.Name}}(data) {
+            return httpreq('{{.Request.Method}}', baseUrl + '{{joinStrArr .Request.URL.Path "/"}}', data, {
+                Authorization = 'Bearer ' + token
+            }, debug)
+        }
+    {{end}}
+    {{if eq .Request.Method "PUT"}}
+        {{.Name}}(data) {
+            return httpreq('{{.Request.Method}}', baseUrl + '{{joinStrArr .Request.URL.Path "/"}}', data, {
+                Authorization = 'Bearer ' + token
+            }, debug)
+        }
+    {{end}}
+    {{if eq .Request.Method "DELETE"}}
+        {{.Name}}({{joinQuery .}}) {
+            return httpreq('{{.Request.Method}}', baseUrl + '{{joinStrArr .Request.URL.Path "/"}}', {}, {
+                Authorization = 'Bearer ' + token
+            }, debug)
+        }
+    {{end}}
+{{end}}
