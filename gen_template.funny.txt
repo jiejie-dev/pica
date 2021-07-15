@@ -5,6 +5,7 @@ debug = false
 
 {{range .}}
     {{if eq .Request.Method "GET"}}
+        // {{.Description}}
         {{.Name}}({{joinQuery .}}) {
             return httpreq('{{.Request.Method}}', baseUrl + '{{joinStrArr .Request.URL.Path "/"}}', {
                 {{range (getQueryNames .)}}
@@ -16,6 +17,7 @@ debug = false
         }
     {{end}}
     {{if eq .Request.Method "POST"}}
+        // {{.Description}}
         {{.Name}}(data) {
             return httpreq('{{.Request.Method}}', baseUrl + '{{joinStrArr .Request.URL.Path "/"}}', data, {
                 Authorization = 'Bearer ' + token
@@ -23,6 +25,7 @@ debug = false
         }
     {{end}}
     {{if eq .Request.Method "PUT"}}
+        // {{.Description}}
         {{.Name}}(data) {
             return httpreq('{{.Request.Method}}', baseUrl + '{{joinStrArr .Request.URL.Path "/"}}', data, {
                 Authorization = 'Bearer ' + token
@@ -30,6 +33,7 @@ debug = false
         }
     {{end}}
     {{if eq .Request.Method "DELETE"}}
+        // {{.Description}}
         {{.Name}}({{joinQuery .}}) {
             return httpreq('{{.Request.Method}}', baseUrl + '{{joinStrArr .Request.URL.Path "/"}}', {}, {
                 Authorization = 'Bearer ' + token

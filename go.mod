@@ -13,11 +13,12 @@ require (
 	github.com/hokaccha/go-prettyjson v0.0.0-20210113012101-fb4e108d2519
 	github.com/howeyc/fsnotify v0.9.0
 	github.com/icrowley/fake v0.0.0-20180203215853-4178557ae428
-	github.com/jerloo/funny v0.0.0-20210715071227-03213244d289
+	github.com/jerloo/funny v0.0.0-20210715140654-82950b5d680f
 	github.com/magiconair/properties v1.8.5
 	github.com/mattn/go-isatty v0.0.13 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.14 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
+	github.com/mozillazg/go-pinyin v0.18.0 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/rakyll/statik v0.1.7
 	github.com/rbretecher/go-postman-collection v0.5.0 // indirect
