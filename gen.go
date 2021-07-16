@@ -32,8 +32,10 @@ func GenerateScriptsByPostman(postmanFile string) string {
 	if err != nil {
 		panic(err)
 	}
+	names := make(map[string]bool)
 	items := getItems(c.Items)
-	for _, item := range items {
+	for index, item := range items {
+
 		if item.Description == "" {
 			item.Description = item.Name
 		}
@@ -49,6 +51,11 @@ func GenerateScriptsByPostman(postmanFile string) string {
 				ps[index] = Capitalize(psItem)
 			}
 			item.Name = strings.Join(ps, "")
+		}
+		if _, ok := names[item.Name]; ok {
+			item.Name = fmt.Sprintf("%s%d", item.Name, index)
+		} else {
+			names[item.Name] = true
 		}
 	}
 	t, err := template.New("postman").Funcs(template.FuncMap{

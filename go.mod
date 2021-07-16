@@ -13,7 +13,7 @@ require (
 	github.com/hokaccha/go-prettyjson v0.0.0-20210113012101-fb4e108d2519
 	github.com/howeyc/fsnotify v0.9.0
 	github.com/icrowley/fake v0.0.0-20180203215853-4178557ae428
-	github.com/jerloo/funny v0.0.0-20210715140654-82950b5d680f
+	github.com/jerloo/funny v0.0.0-20210716092937-55dc0ad093d6
 	github.com/magiconair/properties v1.8.5
 	github.com/mattn/go-isatty v0.0.13 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.14 // indirect
