@@ -33,7 +33,7 @@ func GenerateScriptsByPostman(postmanFile string) string {
 		panic(err)
 	}
 	names := make(map[string]bool)
-	items := getItems(c.Items)
+	items := genItems("", c.Items)
 	for index, item := range items {
 
 		if item.Description == "" {
@@ -46,11 +46,7 @@ func GenerateScriptsByPostman(postmanFile string) string {
 			}
 		}
 		if hansName {
-			ps := pinyin.LazyConvert(item.Name, nil)
-			for index, psItem := range ps {
-				ps[index] = Capitalize(psItem)
-			}
-			item.Name = strings.Join(ps, "")
+			item.Name = safePinYin(item.Name)
 		}
 		if _, ok := names[item.Name]; ok {
 			item.Name = fmt.Sprintf("%s%d", item.Name, index)
@@ -138,11 +134,22 @@ func joinQuery(item *postman.Items) string {
 	return strings.Join(arr, ",")
 }
 
-func getItems(item []*postman.Items) (results []*postman.Items) {
+func safePinYin(hanz string) string {
+	ps := pinyin.LazyConvert(hanz, nil)
+	for index, psItem := range ps {
+		ps[index] = Capitalize(psItem)
+	}
+	return strings.Join(ps, "")
+}
+
+func genItems(nameRoot string, item []*postman.Items) (results []*postman.Items) {
 	for _, child := range item {
 		if child.IsGroup() {
-			results = append(results, getItems(child.Items)...)
+			results = append(results, genItems(fmt.Sprintf("%s_%s", nameRoot, safePinYin(child.Name)), child.Items)...)
 		} else {
+			if nameRoot != "" {
+				child.Name = fmt.Sprintf("%s_%s", nameRoot, child.Name)
+			}
 			results = append(results, child)
 		}
 	}
