@@ -15,11 +15,38 @@ import (
 	"github.com/rbretecher/go-postman-collection"
 )
 
-//go:embed gen_template.funny.txt
-var GenFromPostmanTemplate string
+type ScriptsGenerator interface {
+	Name() string
+	Generate(filename string) string
+}
 
-func GenerateScriptsByPostman(postmanFile string) string {
-	file, err := os.Open(postmanFile)
+func NewScriptsGenerator(name string) ScriptsGenerator {
+	return map[string]ScriptsGenerator{
+		"Postman":  &PostmanScriptsGenerator{},
+		"Swagger2": &Swagger2ScriptsGenerator{},
+	}[name]
+}
+
+type Swagger2ScriptsGenerator struct {
+}
+
+func (generator *Swagger2ScriptsGenerator) Name() string {
+	return "Swagger2"
+}
+
+func (generator *Swagger2ScriptsGenerator) Generate(filename string) string {
+	return ""
+}
+
+type PostmanScriptsGenerator struct {
+}
+
+func (generator *PostmanScriptsGenerator) Name() string {
+	return "Postman"
+}
+
+func (generator *PostmanScriptsGenerator) Generate(filename string) string {
+	file, err := os.Open(filename)
 	defer func() {
 		file.Close()
 	}()
@@ -77,6 +104,9 @@ func GenerateScriptsByPostman(postmanFile string) string {
 	data := builder.String()
 	return funny.Format([]byte(data), "")
 }
+
+//go:embed gen_template.funny.txt
+var GenFromPostmanTemplate string
 
 //字符首字母大写转换
 func Capitalize(str string) string {
