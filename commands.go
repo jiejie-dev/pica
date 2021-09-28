@@ -129,7 +129,7 @@ func Format(filename string, save, print bool) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("parse error %v", err.Error())
 	}
-	parser := funny.NewParser(buffer)
+	parser := funny.NewParser(buffer, filename)
 	parser.Consume("")
 	flag := 0
 	for {

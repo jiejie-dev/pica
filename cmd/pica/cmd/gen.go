@@ -30,7 +30,8 @@ var genCmd = &cobra.Command{
 	Short: "Generate pica scripts.",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) > 0 {
-			result := pica.GenerateScriptsByPostman(args[0])
+			generator := pica.NewScriptsGenerator("postman")
+			result := generator.Generate(args[0])
 			fmt.Println(result)
 		}
 	},

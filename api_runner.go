@@ -19,14 +19,14 @@ type APIRunner struct {
 	Delay    int
 
 	content []byte
-	vm      *funny.Interpreter
+	vm      *funny.Funny
 	parser  *funny.Parser
 	client  *http.Client
 	output  *Output
 
 	APIItems  []*ApiItem
-	Block     funny.Block
-	InitLines funny.Block
+	Block     *funny.Block
+	InitLines *funny.Block
 }
 
 // NewAPIRunnerFromFile create a runner from a pica file
@@ -37,7 +37,7 @@ func NewAPIRunnerFromFile(filename string, apiNames []string, delay int) *APIRun
 		Delay:    delay,
 
 		client: http.DefaultClient,
-		vm:     funny.NewInterpreterWithScope(DefaultInitScope),
+		vm:     funny.NewFunnyWithScope(DefaultInitScope),
 		output: DefaultOutput,
 	}
 }
@@ -50,7 +50,7 @@ func NewAPIRunnerFromContent(content []byte) *APIRunner {
 		Delay:    0,
 		content:  content,
 		client:   http.DefaultClient,
-		vm:       funny.NewInterpreterWithScope(DefaultInitScope),
+		vm:       funny.NewFunnyWithScope(DefaultInitScope),
 		output:   DefaultOutput,
 	}
 }
@@ -98,21 +98,14 @@ func (runner *APIRunner) Run() error {
 
 // Parse parse pica file
 func (runner *APIRunner) Parse() error {
-	if runner.Filename != "" {
-		buffer, err := funny.CombinedCode("", runner.Filename)
-		if err != nil {
-			return fmt.Errorf("parse error %v", err.Error())
-		}
-		runner.content = []byte(buffer)
-	}
-	runner.parser = funny.NewParser(runner.content)
+	runner.parser = funny.NewParser(runner.content, runner.Filename)
 	runner.Block = runner.parser.Parse()
 	return nil
 }
 
 // RunInitLines run the code of initialization
 func (runner *APIRunner) RunInitLines() {
-	for _, line := range runner.InitLines {
+	for _, line := range runner.InitLines.Statements {
 		runner.vm.EvalStatement(line)
 	}
 }
@@ -123,7 +116,7 @@ func (runner *APIRunner) RunSingle(item *ApiItem) error {
 
 	runner.vm.Assign("url", item.Request.Url)
 	// Eval init scope statements
-	for _, line := range item.Request.lines {
+	for _, line := range item.Request.lines.Statements {
 		runner.vm.EvalStatement(line)
 	}
 
@@ -172,7 +165,7 @@ func (runner *APIRunner) RunSingle(item *ApiItem) error {
 	}
 
 	// Eval item response statement
-	for _, line := range item.Response.lines {
+	for _, line := range item.Response.lines.Statements {
 		runner.vm.EvalStatement(line)
 	}
 
@@ -212,8 +205,8 @@ func (runner *APIRunner) ParseAPIItems() error {
 	inited := false
 	index := 0
 	asserting := false
-	for index < len(runner.Block) {
-		line := runner.Block[index]
+	for index < len(runner.Block.Statements) {
+		line := runner.Block.Statements[index]
 		switch line := line.(type) {
 		case *funny.Comment:
 			text := strings.Trim(line.Value, " ")
@@ -224,7 +217,7 @@ func (runner *APIRunner) ParseAPIItems() error {
 			methods := []string{"GET", "POST", "DELETE", "PUT", "PATCH"}
 			flag := false
 			for _, item := range methods {
-				if strings.ToUpper(item) == strings.ToUpper(texts[0]) {
+				if strings.EqualFold(item, texts[0]) {
 					flag = true
 				}
 			}
@@ -254,20 +247,20 @@ func (runner *APIRunner) ParseAPIItems() error {
 			}
 			if asserting {
 				item := runner.APIItems[len(runner.APIItems)-1]
-				item.Response.lines = append(item.Response.lines, line)
+				item.Response.lines.Statements = append(item.Response.lines.Statements, line)
 				break
 			}
 		default:
 			if inited {
 				if asserting {
 					item := runner.APIItems[len(runner.APIItems)-1]
-					item.Response.lines = append(item.Response.lines, line)
+					item.Response.lines.Statements = append(item.Response.lines.Statements, line)
 				} else {
 					item := runner.APIItems[len(runner.APIItems)-1]
-					item.Request.lines = append(item.Request.lines, line)
+					item.Request.lines.Statements = append(item.Request.lines.Statements, line)
 				}
 			} else {
-				runner.InitLines = append(runner.InitLines, line)
+				runner.InitLines.Statements = append(runner.InitLines.Statements, line)
 			}
 		}
 		index++

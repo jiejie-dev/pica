@@ -22,8 +22,8 @@ type ScriptsGenerator interface {
 
 func NewScriptsGenerator(name string) ScriptsGenerator {
 	return map[string]ScriptsGenerator{
-		"Postman":  &PostmanScriptsGenerator{},
-		"Swagger2": &Swagger2ScriptsGenerator{},
+		"postman":  &PostmanScriptsGenerator{},
+		"swagger2": &Swagger2ScriptsGenerator{},
 	}[name]
 }
 
@@ -31,7 +31,7 @@ type Swagger2ScriptsGenerator struct {
 }
 
 func (generator *Swagger2ScriptsGenerator) Name() string {
-	return "Swagger2"
+	return "swagger2"
 }
 
 func (generator *Swagger2ScriptsGenerator) Generate(filename string) string {
@@ -42,7 +42,7 @@ type PostmanScriptsGenerator struct {
 }
 
 func (generator *PostmanScriptsGenerator) Name() string {
-	return "Postman"
+	return "postman"
 }
 
 func (generator *PostmanScriptsGenerator) Generate(filename string) string {

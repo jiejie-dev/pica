@@ -8,7 +8,7 @@ import (
 )
 
 func TestCompileUrl(t *testing.T) {
-	vm := funny.NewInterpreterWithScope(funny.Scope{})
+	vm := funny.NewFunnyWithScope(funny.Scope{})
 	vm.Assign("user_id", "10")
 	url, query, err := CompileURL("/api/users/<user_id>", vm)
 	if err != nil {

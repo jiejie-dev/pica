@@ -34,7 +34,7 @@ func VmMap2HttpHeaders(vmMap map[string]funny.Value) http.Header {
 	return headers
 }
 
-func CompileURL(url string, vm *funny.Interpreter) (string, Query, error) {
+func CompileURL(url string, vm *funny.Funny) (string, Query, error) {
 	queryValue := vm.LookupDefault("query", nil)
 	query := Query{}
 	if queryValue != nil {

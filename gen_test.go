@@ -6,6 +6,7 @@ import (
 )
 
 func TestGenPostmanGet(t *testing.T) {
-	result := GenerateScriptsByPostman("gen_test.json")
+	generator := NewScriptsGenerator("postman")
+	result := generator.Generate("gen_test.json")
 	fmt.Println(result)
 }
