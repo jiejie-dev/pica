@@ -26,11 +26,12 @@ var from string
 
 // genCmd represents the gen command
 var genCmd = &cobra.Command{
-	Use:   "gen",
-	Short: "Generate pica scripts.",
+	Use:     "generate",
+	Aliases: []string{"gen"},
+	Short:   "Generate pica scripts.",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) > 0 {
-			generator := pica.NewScriptsGenerator("postman")
+			generator := pica.NewScriptsGenerator(from)
 			result := generator.Generate(args[0])
 			fmt.Println(result)
 		}
@@ -49,5 +50,5 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// genCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	genCmd.Flags().StringVar(&from, "from", "", "support postman")
+	genCmd.Flags().StringVar(&from, "from", "postman", "support postman, swagger2")
 }
