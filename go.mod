@@ -6,7 +6,7 @@ require (
 	github.com/alecthomas/kingpin v2.2.6+incompatible
 	github.com/fatih/color v1.13.0
 	github.com/fixate/go-qs v0.0.0-20170330035900-bd286716509d
-	github.com/gin-gonic/gin v1.7.2
+	github.com/gin-gonic/gin v1.7.7
 	github.com/hokaccha/go-prettyjson v0.0.0-20210113012101-fb4e108d2519
 	github.com/howeyc/fsnotify v0.9.0
 	github.com/icrowley/fake v0.0.0-20180203215853-4178557ae428
